@@ -5,7 +5,7 @@ def fc(name, X, out_dim):
   X_dim = X.get_shape().as_list()
   W = tf.get_variable(
       'W_{}'.format(name),
-      [X_dim[2] , out_dim],
+      [X_dim[-1] , out_dim],
       dtype=tf.float32,
       initializer=tf.contrib.layers.xavier_initializer())
   b = tf.get_variable(
@@ -13,7 +13,10 @@ def fc(name, X, out_dim):
       [out_dim, ],
       dtype=tf.float32,
       initializer=tf.constant_initializer(0.))
-  fc = tf.map_fn(lambda x: tf.matmul(x, W) + b, X, dtype=tf.float32)
+  if len(X_dim) > 2:
+    fc = tf.map_fn(lambda x: tf.matmul(x, W) + b, X, dtype=tf.float32)
+  else:
+    fc = tf.matmul(X, W) + b
   return fc
 
 
