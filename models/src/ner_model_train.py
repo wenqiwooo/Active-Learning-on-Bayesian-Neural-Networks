@@ -1,6 +1,6 @@
 import numpy as np
 import tensorflow as tf
-from model import NerModel
+from ner_model import NerModel
 
 
 flags = tf.app.flags

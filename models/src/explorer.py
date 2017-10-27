@@ -3,7 +3,7 @@ from bayes_opt import BayesianOptimization
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-from train import Trainer
+from ner_model_train import Trainer
 
 # plt.style.use(['dark_background'])
 
