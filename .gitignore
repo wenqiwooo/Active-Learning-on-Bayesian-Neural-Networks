@@ -2,6 +2,14 @@ venv/
 
 glove.6B.100d.txt
 
+cifar-10-batches-py/
+
+cifar-10-python.tar.gz
+
+cifar10_images.npy
+
+cifar10_cls.npy
+
 *.pyc
 
 __pycache__/
