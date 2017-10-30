@@ -13,3 +13,5 @@ cifar10_cls.npy
 *.pyc
 
 __pycache__/
+
+checkpoint/

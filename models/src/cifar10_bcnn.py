@@ -132,8 +132,8 @@ class Cifar10BCNN(object):
   def predict(self, session, x, batch_size):
     predictions = []
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
-      predicted_probs = self.predict_batch(batch_x)
-      predictions.append(predicted_probs)
+      predicted_probs = self.predict_batch(session, batch_x)
+      predictions.extend(predicted_probs)
     return predictions
 
 
