@@ -125,8 +125,8 @@ class Cifar10BCNN(object):
       self.x: batch_x,
       self.y: batch_y,
     }
-    info_dict = inference.update(feed_dict=feed_dict)
-    inference.print_progress(info_dict)
+    info_dict = self.inference.update(feed_dict=feed_dict)
+    self.inference.print_progress(info_dict)
 
 
   def predict(self, session, x, batch_size):

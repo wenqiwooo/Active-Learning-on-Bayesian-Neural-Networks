@@ -6,14 +6,15 @@ import tarfile
 import urllib.request
 from download import maybe_download_and_extract
 from cifar10 import load_training_data
+from cifar10_bcnn import Cifar10BCNN
 
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 # flags.DEFINE_float('learning_rate', 0.01, 'Initial learning rate.')
 # flags.DEFINE_float('max_grad_norm', 5., 'Max value of gradient.')
-# flags.DEFINE_integer('epochs', 1, 'Number of epochs to run.')
-# flags.DEFINE_integer('batch_size', 60, 'Minibatch size.')
+flags.DEFINE_integer('epochs', 1, 'Number of epochs to run.')
+flags.DEFINE_integer('batch_size', 60, 'Minibatch size.')
 # flags.DEFINE_integer('dim_size', 100, 'Dim of word vectors.')
 # flags.DEFINE_integer('sequence_len', 120, 'Sequence length.')
 # flags.DEFINE_integer('hidden_size', 100, 'Hidden layer size.')
@@ -40,31 +41,17 @@ def _get_data(data_dir):
 
 
 def main(_):
-  X, Y = _get_data(DATA_DIR)
-  model = Model()
+  images, classes = _get_data(DATA_DIR)
+  model = Cifar10BCNN()
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
-    model.optimize(sess, X, Y, FLAGS.epochs, FLAGS.batch_size)
-
-
-class Trainer(object):
-  def __init__(self):
-    FLAGS._parse_flags()
-    self.X, self.Y = _get_data(FLAGS.data_dir)
-
-  def train(self, hidden_size, lr, batch_size):
-    FLAGS._parse_flags()
-    with tf.Graph().as_default(), tf.Session() as sess:
-      model = Model()
-      sess.run(tf.global_variables_initializer())
-      loss = model.optimize(sess, self.X, self.Y, FLAGS.epochs, batch_size)
-      return loss
+    model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
 
 
 if __name__ == '__main__':
-  _download_if_needed(DATA_URL, DATA_DIR)
-  _initialize_data(DATA_DIR)
-  # tf.app.run()
+  # _download_if_needed(DATA_URL, DATA_DIR)
+  # _initialize_data(DATA_DIR)
+  tf.app.run()
 
 
 
