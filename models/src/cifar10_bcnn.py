@@ -129,18 +129,19 @@ class Cifar10BCNN(object):
     self.inference.print_progress(info_dict)
 
 
-  def predict(self, session, x, batch_size):
+  def predict(self, x, batch_size):
     predictions = []
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
-      predicted_probs = self.predict_batch(session, batch_x)
+      predicted_probs = self.predict_batch(
+          tf.convert_to_tensor(batch_x, np.float32))
       predictions.extend(predicted_probs)
     return predictions
 
 
-  def predict_batch(self, session, batch_x):
+  def predict_batch(self, batch_x):
     kernel1 = tf.reshape(self.qf1.sample(), (3, 3, 3, 64))
     bias1 = self.qb1.sample()
-    conv1 = tf.nn.bias_add(tf.nn.conv2d(self.x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), bias1)
+    conv1 = tf.nn.bias_add(tf.nn.conv2d(batch_x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), bias1)
     conv1 = tf.nn.relu(conv1)
     maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
 
