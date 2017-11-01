@@ -4,6 +4,7 @@ import numpy as np
 import tensorflow as tf
 import tarfile
 import urllib.request
+from tqdm import tqdm
 from download import maybe_download_and_extract
 from cifar10 import load_training_data
 from cifar10_bcnn import Cifar10BCNN

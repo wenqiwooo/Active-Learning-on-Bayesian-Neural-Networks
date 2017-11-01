@@ -136,12 +136,14 @@ class Cifar10BCNN(object):
 
   def predict(self, sess, x, batch_size):
     predictions = []
+    pbar = tqdm(total=len(x) / batch_size + 1)
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
       predicted_probs = sess.run([self.predict_batch()],
           feed_dict={
             self.x: batch_x
           })
       predictions.extend(predicted_probs)
+      pbar.update() 
     return np.array(predictions)
 
 
