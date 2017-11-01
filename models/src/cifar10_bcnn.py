@@ -134,17 +134,23 @@ class Cifar10BCNN(object):
     return info['loss']
 
 
+  def validate(self, sess, x, y, batch_size):
+    pred = self.predict(sess, x, batch_size)
+    pred_results = np.argmax(pred, axis=0)
+    return (x == y).sum() / len(x)
+
+
   def predict(self, sess, x, batch_size):
     predictions = []
     pbar = tqdm(total=len(x) // batch_size + 1)
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
-      predicted_probs = sess.run([self.predict_batch()],
+      predicted_probs = sess.run(self.predict_batch(),
           feed_dict={
             self.x: batch_x
           })
       predictions.extend(predicted_probs)
       pbar.update() 
-    return np.array(predictions)
+    return predictions
 
 
   def predict_batch(self):

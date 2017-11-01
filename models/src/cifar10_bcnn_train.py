@@ -6,7 +6,7 @@ import tarfile
 import urllib.request
 from tqdm import tqdm
 from download import maybe_download_and_extract
-from cifar10 import load_training_data
+from cifar10 import load_training_data, load_test_data
 from cifar10_bcnn import Cifar10BCNN
 
 
@@ -77,7 +77,6 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
     classes = classes[FLAGS.select_size:]
   else:
     pred = model.predict(sess, images, FLAGS.batch_size)
-    pred = np.concatenate(pred, 0)
     indices, _ = f(pred, FLAGS.select_size)
     selected_images = images[indices]
     selected_classes = classes[indices]
@@ -89,14 +88,7 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 
 def main(_):
-  # saver = tf.train.Saver()
-  # save_path = os.path.join(SAVE_DIR, 'cifar10_bcnn.ckpt')
-  # if os.path.exists(save_path):
-  #   saver.restore(sess, save_path)
-  #   initial = False
-  # else:
-  #   sess.run(tf.global_variables_initializer())
-  #   initial = True
+  test_images, test_classes, _ = load_test_data()
   images, classes = _select_data(
       DATA_DIR, initial=True)
   for i in range(FLAGS.fetches):
@@ -104,6 +96,8 @@ def main(_):
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
+      acc = model.validate(sess, test_images, test_classes, FLAGS.batch_size)
+      print('Validation accuracy: {} %\n'.format(accuracy * 100))
       new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
       images = np.concatenate([images, new_images], 0)
       classes = np.concatenate([classes, new_classes], 0)
