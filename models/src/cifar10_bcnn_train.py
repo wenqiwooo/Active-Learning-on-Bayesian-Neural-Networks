@@ -77,7 +77,6 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
     classes = classes[FLAGS.select_size:]
   else:
     pred = model.predict(sess, images, FLAGS.batch_size)
-    pred = np.concatenate(pred, 0)
     indices, _ = f(pred, FLAGS.select_size)
     selected_images = images[indices]
     selected_classes = classes[indices]
