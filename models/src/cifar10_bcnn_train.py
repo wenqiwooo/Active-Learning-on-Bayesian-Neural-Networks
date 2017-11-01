@@ -14,7 +14,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 50, 'Number of data fetches.')
 flags.DEFINE_integer('epochs', 20, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('batch_size', 60, 'Minibatch size.')
-flags.DEFINE_integer('select_size', 512, 'Data selection size.')
+flags.DEFINE_integer('select_size', 128, 'Data selection size.')
 
 
 SAVE_DIR = '../checkpoint'
