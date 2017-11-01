@@ -103,6 +103,8 @@ def main(_):
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       saver.save(sess, save_path)
       images, classes = _select_data(DATA_DIR, sess, model, max_entropy)
+      print(images.shape)
+      print(classes.shape)
 
 
 if __name__ == '__main__':
