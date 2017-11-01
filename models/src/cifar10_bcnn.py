@@ -150,7 +150,9 @@ class Cifar10BCNN(object):
       fc_weights = self.qfcw.sample()
       fc_bias = self.qfcb.sample()
       probs = tf.nn.softmax(tf.matmul(conv_out, fc_weights) + fc_bias)
-      pred += probs.eval()
+      result = probs.eval()
+      print(result[0])
+      pred += result
 
     pred_results = np.squeeze(np.argmax(pred, axis=1))
     return np.mean(pred_results == y)
