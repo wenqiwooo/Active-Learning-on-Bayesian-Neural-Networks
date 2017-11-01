@@ -108,7 +108,7 @@ class Cifar10BCNN(object):
       }
       self.inference = ed.KLqp(latent_vars, data=data)
       self.inference.initialize(
-          scale={self.categorical: 100.})
+          scale={self.categorical: 100})
 
 
   def optimize(self, session, x, y, epochs, batch_size):
