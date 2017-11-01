@@ -29,6 +29,7 @@ def BCNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   maxpool1 = tf.nn.max_pool(
       conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
   # 16 x 16 x 32
+  # print(maxpool1.get_shape())
 
   conv2 = tf.nn.bias_add(
       tf.nn.conv2d(maxpool1, f2, (1, 1, 1, 1), 'SAME', name='conv2'), b2)
@@ -36,6 +37,7 @@ def BCNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   maxpool2 = tf.nn.max_pool(
       conv2, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool2')
   # 8 x 8 x 32
+  # print(maxpool2.get_shape())
 
   conv3 = tf.nn.bias_add(
       tf.nn.conv2d(maxpool2, f3, (1, 1, 1, 1), 'SAME', name='conv3'), b3)
@@ -43,11 +45,14 @@ def BCNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   maxpool3 = tf.nn.max_pool(
       conv3, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool3')
   # 4 x 4 x 64
+  # print(maxpool3.get_shape())
 
-  conv_out = tf.reshape(maxpool2, (-1, 1024))
+  conv_out = tf.reshape(maxpool2, (-1, 2048))
   fc1 = tf.matmul(conv_out, fc_w1) + fc_b1
   fc1 = tf.nn.relu(fc1)
+  # print(fc1.get_shape())
   fc2 = tf.matmul(fc1, fc_w2) + fc_b2
+  # print(fc2.get_shape())
 
   return fc2
 
@@ -73,7 +78,7 @@ class Cifar10BCNN(object):
     self.b3 = Normal(
         loc=tf.zeros(self.f3_shape[-1]), scale=tf.ones(self.f3_shape[-1]))
 
-    self.fc_w1_shape = (1024, 64)
+    self.fc_w1_shape = (2048, 64)
     self.fc_w1 = Normal(
         loc=tf.zeros(self.fc_w1_shape), scale=tf.ones(self.fc_w1_shape))
     self.fc_b1 = Normal(
@@ -138,16 +143,17 @@ class Cifar10BCNN(object):
         self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.y})
 
+    self.inference.initialize()
+
 
   def optimize(self, X, Y, epochs, batch_size):
     data_size = X.shape[0]
     iterations = epochs * math.ceil(data_size / batch_size)
-    self.inference.initialize(
-        n_iter=iterations, scale={self.categorical: data_size / batch_size})
+    # self.inference.initialize(
+    #     n_iter=iterations, scale={self.categorical: data_size / batch_size})
     print('Optimizing {} training examples'.format(data_size))
 
     for i in range(1, epochs+1):
-      epoch_loss = 0
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
         info_dict = self.inference.update(feed_dict={
             self.x: X_batch,
