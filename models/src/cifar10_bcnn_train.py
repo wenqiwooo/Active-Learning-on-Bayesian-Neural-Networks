@@ -7,7 +7,7 @@ import urllib.request
 from tqdm import tqdm
 from download import maybe_download_and_extract
 from cifar10 import load_training_data, load_test_data
-from cifar10_bcnn import Cifar10BCNN
+from cifar10_bcnn2 import Cifar10BCNN
 
 
 flags = tf.app.flags
@@ -89,23 +89,19 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 
 def main(_):
-  test_images, test_classes, _ = load_test_data()
-  test_images = test_images[:1000]
-  test_classes = test_classes[:1000]
-  images, classes = _select_data(
-      DATA_DIR, initial=True)
+  images, classes, _ = load_test_data()
+  test_images = images[:1000]
+  test_classes = classes[:1000]
+
   with tf.Session() as sess:
     model = Cifar10BCNN()
     sess.run(tf.global_variables_initializer())
-    for i in range(FLAGS.fetches):
-      model.optimize(sess, test_images, test_classes, FLAGS.epochs, FLAGS.batch_size)
-      acc = model.validate(
-          sess, test_images, test_classes, FLAGS.batch_size, FLAGS.classes, 10)
-      print(acc)
-      # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
-      # images = np.concatenate([images, new_images], 0)
-      # classes = np.concatenate([classes, new_classes], 0)
-    # tf.reset_default_graph()
+    model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
+    acc = model.validate(test_images, test_classes, FLAGS.batch_size, 5)
+    print(acc)
+    # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
+    # images = np.concatenate([images, new_images], 0)
+    # classes = np.concatenate([classes, new_classes], 0)
 
 
 if __name__ == '__main__':
