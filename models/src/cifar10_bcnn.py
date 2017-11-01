@@ -120,7 +120,6 @@ class Cifar10BCNN(object):
       pbar.update()
       pbar.set_postfix(loss=epoch_loss/len(x), refresh=False)  
     pbar.close() 
-    self.inference.finalize()
 
 
   def optimize_batch(self, batch_x, batch_y):
