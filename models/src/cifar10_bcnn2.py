@@ -94,38 +94,41 @@ class Cifar10BCNN(object):
         loc=tf.Variable(tf.random_normal(self.f1_shape)),
         scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.f1_shape))))
     self.qb1 = Normal(
-        loc=tf.Variable(tf.random_normal(self.f1_shape[-1])),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.f1_shape[-1]))))
+        loc=tf.Variable(tf.random_normal([self.f1_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal([self.f1_shape[-1]]))))
 
     self.qf2 = Normal(
         loc=tf.Variable(tf.random_normal(self.f2_shape)),
         scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.f2_shape))))
     self.qb2 = Normal(
-        loc=tf.Variable(tf.random_normal(self.f2_shape[-1])),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.f2_shape[-1]))))
+        loc=tf.Variable(tf.random_normal([self.f2_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal[(self.f2_shape[-1]]))))
 
     self.qf3 = Normal(
         loc=tf.Variable(tf.random_normal(self.f3_shape)),
         scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.f3_shape))))
     self.qb3 = Normal(
-        loc=tf.Variable(tf.random_normal(self.f3_shape[-1])),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.f3_shape[-1]))))
+        loc=tf.Variable(tf.random_normal([self.f3_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal([self.f3_shape[-1]]))))
 
     self.qfc_w1 = Normal(
         loc=tf.Variable(tf.random_normal(self.fc_w1_shape)),
         scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.fc_w1_shape))))
     self.qfc_b1 = Normal(
-        loc=tf.Variable(tf.random_normal(self.fc_w1_shape[-1])),
+        loc=tf.Variable(tf.random_normal([self.fc_w1_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal(self.fc_w1_shape[-1]))))
+            tf.Variable(tf.random_normal([self.fc_w1_shape[-1]]))))
 
     self.qfc_w2 = Normal(
         loc=tf.Variable(tf.random_normal(self.fc_w2_shape)),
         scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.fc_w2_shape))))
     self.qfc_b2 = Normal(
-        loc=tf.Variable(tf.random_normal(self.fc_w2_shape[-1])),
+        loc=tf.Variable(tf.random_normal([self.fc_w2_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal(self.fc_w2_shape[-1]))))
+            tf.Variable(tf.random_normal([self.fc_w2_shape[-1]]))))
 
     self.inference = ed.KLqp({
         self.f1: self.qf1, self.b1: self.qb1,
