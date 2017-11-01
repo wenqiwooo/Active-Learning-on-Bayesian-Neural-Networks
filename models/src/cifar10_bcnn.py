@@ -107,7 +107,8 @@ class Cifar10BCNN(object):
         self.categorical: self.y
       }
       self.inference = ed.KLqp(latent_vars, data=data)
-      self.inference.initialize()
+      self.inference.initialize(
+          scale={self.categorical: 100.})
 
 
   def optimize(self, session, x, y, epochs, batch_size):
@@ -132,14 +133,13 @@ class Cifar10BCNN(object):
 
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
-    pred = np.zeros((y.shape[0], classes), dtype=np.float32)
-
+    accuracies = []
     for i in range(predicts):
       result = self.predict(sess, x, batch_size)
-      pred += result
-
-    pred_results = np.squeeze(np.argmax(pred, axis=1))
-    return np.mean(pred_results+1 == y)
+      pred = np.argmax(result, axis=1)
+      acc = np.mean(pred == y) * 100
+      accuracies.append(acc)
+    return accuracies
 
 
   def predict(self, sess, x, batch_size):

@@ -13,7 +13,7 @@ from cifar10_bcnn import Cifar10BCNN
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 10, 'Number of data fetches.')
-flags.DEFINE_integer('epochs', 150, 'Number of epochs for each dataset.')
+flags.DEFINE_integer('epochs', 200, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('classes', 10, 'Data selection size.')
 flags.DEFINE_integer('batch_size', 128, 'Minibatch size.')
 flags.DEFINE_integer('select_size', 10000, 'Data selection size.')
@@ -101,7 +101,7 @@ def main(_):
       model.optimize(sess, test_images, test_classes, FLAGS.epochs, FLAGS.batch_size)
       acc = model.validate(
           sess, test_images, test_classes, FLAGS.batch_size, FLAGS.classes, 20)
-      print('Validation accuracy: {} %'.format(acc * 100))
+      print(acc)
       # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
       # images = np.concatenate([images, new_images], 0)
       # classes = np.concatenate([classes, new_classes], 0)
