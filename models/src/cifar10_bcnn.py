@@ -137,7 +137,7 @@ class Cifar10BCNN(object):
   def validate(self, sess, x, y, batch_size):
     pred = self.predict(sess, x, batch_size)
     pred_results = np.argmax(pred, axis=0)
-    return (x == y).sum() / len(x)
+    return (pred_results == y).sum() / len(x)
 
 
   def predict(self, sess, x, batch_size):
