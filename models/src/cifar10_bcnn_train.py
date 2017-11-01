@@ -59,7 +59,7 @@ def max_mutual(pred, k):
   pass
 
 
-def _select_data(data_dir, sess, model, f, initial=False):
+def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
   """Selects the next pool of data to train on
   
   Args:
@@ -98,7 +98,7 @@ def main(_):
   #   sess.run(tf.global_variables_initializer())
   #   initial = True
   images, classes = _select_data(
-      DATA_DIR, sess, model, max_entropy, initial=initial)
+      DATA_DIR, initial=True)
   for i in range(FLAGS.fetches):
     with tf.Session() as sess:
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
