@@ -48,7 +48,6 @@ def max_entropy(pred, k):
   k_largest = np.argpartition(entropy, -k)[-k:]
   bitmap = np.zeros(entropy.shape)
   bitmap[k_largest] = 1
-  print(k_largest)
   return k_largest, bitmap
 
 
@@ -78,13 +77,11 @@ def _select_data(data_dir, sess, model, f, initial=False):
   else:
     pred = model.predict(sess, images, FLAGS.batch_size)
     pred = np.concatenate(pred, 0)
-    print("PRED SHAPE")
-    print(pred.shape)
     indices, _ = f(pred, FLAGS.select_size)
     selected_images = images[indices]
     selected_classes = classes[indices]
-    images = np.delete(images, indices)
-    classes = np.delete(classes, indices)
+    images = np.delete(images, indices, axis=0)
+    classes = np.delete(classes, indices, axis=0)
   np.save('{}/cifar10_images'.format(data_dir), images)
   np.save('{}/cifar10_cls'.format(data_dir), classes)
   return selected_images, selected_classes
