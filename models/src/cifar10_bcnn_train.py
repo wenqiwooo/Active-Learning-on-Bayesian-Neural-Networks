@@ -103,7 +103,6 @@ def main(_):
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
-      saver.save(sess, save_path)
       new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
       images += new_images
       classes += new_classes
