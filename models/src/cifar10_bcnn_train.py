@@ -13,9 +13,9 @@ from cifar10_bcnn2 import Cifar10BCNN
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 10, 'Number of data fetches.')
-flags.DEFINE_integer('epochs', 300, 'Number of epochs for each dataset.')
+flags.DEFINE_integer('epochs', 80, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('classes', 10, 'Data selection size.')
-flags.DEFINE_integer('batch_size', 100, 'Minibatch size.')
+flags.DEFINE_integer('batch_size', 50, 'Minibatch size.')
 flags.DEFINE_integer('select_size', 10000, 'Data selection size.')
 
 
@@ -89,9 +89,10 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 
 def main(_):
-  images, classes, _ = load_test_data()
-  test_images = images[:1000]
-  test_classes = classes[:1000]
+  images, classes, _ = load_training_data()
+  test_images, test_classes, _ = load_test_data()
+  test_images = test_images[:1000]
+  test_classes = test_classes[:1000]
 
   with tf.Session() as sess:
     model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)

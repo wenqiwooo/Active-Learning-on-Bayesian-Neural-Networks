@@ -8,7 +8,7 @@ from tqdm import tqdm
 
 
 class MnistModel(object):
-  def __init__(self, input_dim=784, output_dim=10, iterations=5000, 
+  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=5000, 
       batch_size=100):
     self.input_dim = input_dim
     self.output_dim = output_dim
@@ -16,6 +16,8 @@ class MnistModel(object):
     self.batch_size = batch_size
 
     self.X_placeholder = tf.placeholder(tf.float32, (None, self.input_dim))
+    self.Y_placeholder = tf.placeholder(tf.int32, (None,))
+
     w_shape = (input_dim, output_dim)
     self.w = Normal(loc=tf.zeros(w_shape), scale=tf.ones(w_shape))
     self.b = Normal(loc=tf.zeros(w_shape[-1]), scale=tf.ones(w_shape[-1]))

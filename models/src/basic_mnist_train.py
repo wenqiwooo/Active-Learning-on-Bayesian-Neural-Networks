@@ -9,12 +9,12 @@ flags.DEFINE_string('data_dir', '../data', 'Data directory.')
 
 
 def main(_):
-  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=True)
-  model = MnistModel()
+  mnist = input_data.read_data_sets(FLAGS.data_dir, one_hot=False)
+  model = MnistModel(mnist)
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     model.optimize(mnist)
-    acc = model.validate(mnist)
+    acc = model.validate(mnist, 10)
     print(acc)
 
 
