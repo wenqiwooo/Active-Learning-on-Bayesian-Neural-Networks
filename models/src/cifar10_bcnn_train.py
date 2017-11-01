@@ -44,7 +44,7 @@ def max_entropy(pred, k):
     np.array: [size * no of classes]. 1 if entry is top k, 0 otherwise.
 
   """
-  entropy = np.sum(-1 * np.multiply(pred, np.log(pred)), axis=1)
+  entropy = np.sum(-1 * pred * np.log(pred), axis=1)
   k_largest = np.argpartition(entropy, -k)[-k:]
   bitmap = np.zeros(entropy.shape)
   bitmap[k_largest] = 1
@@ -76,7 +76,7 @@ def _select_data(data_dir, sess, model, f, initial=False):
     classes = classes[FLAGS.select_size:]
   else:
     pred = model.predict(sess, images, 512)
-    indices, _ = f(pred, FLAGS.select_size)
+    indices, _ = f(np.array(pred), FLAGS.select_size)
     selected_images = np.take(images)
     selected_classes = np.take(classes)
     images = np.delete(indices)
