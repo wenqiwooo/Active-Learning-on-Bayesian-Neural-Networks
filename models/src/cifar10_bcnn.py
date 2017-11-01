@@ -111,7 +111,7 @@ class Cifar10BCNN(object):
         self.categorical: self.y
       }
       self.inference = ed.KLqp(latent_vars, data=data)
-      self.inference.initialize(n_iter=1000000)
+      self.inference.initialize(n_iter=10000)
 
 
   def optimize(self, session, x, y, epochs, batch_size):

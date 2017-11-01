@@ -90,20 +90,22 @@ def _select_data(data_dir, sess, model, f, initial=False):
 def main(_):
   model = Cifar10BCNN()
   saver = tf.train.Saver()
-  with tf.Session() as sess:
-    save_path = os.path.join(SAVE_DIR, 'cifar10_bcnn.ckpt')
-    if os.path.exists(save_path):
-      saver.restore(sess, save_path)
-      initial = False
-    else:
-      sess.run(tf.global_variables_initializer())
-      initial = True
-    images, classes = _select_data(
-        DATA_DIR, sess, model, max_entropy, initial=initial)
-    for i in range(FLAGS.fetches):
+  # save_path = os.path.join(SAVE_DIR, 'cifar10_bcnn.ckpt')
+  # if os.path.exists(save_path):
+  #   saver.restore(sess, save_path)
+  #   initial = False
+  # else:
+  #   sess.run(tf.global_variables_initializer())
+  #   initial = True
+  images, classes = _select_data(
+      DATA_DIR, sess, model, max_entropy, initial=initial)
+  for i in range(FLAGS.fetches):
+    with tf.Session() as sess:
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       saver.save(sess, save_path)
-      images, classes = _select_data(DATA_DIR, sess, model, max_entropy)
+      new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
+      images += new_images
+      classes += new_classes
 
 
 if __name__ == '__main__':
