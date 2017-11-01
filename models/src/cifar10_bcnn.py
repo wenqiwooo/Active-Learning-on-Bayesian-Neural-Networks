@@ -131,7 +131,7 @@ class Cifar10BCNN(object):
       self.y: batch_y,
     }
     info = self.inference.update(feed_dict=feed_dict)
-    return info.loss
+    return info['loss']
 
 
   def predict(self, sess, x, batch_size):
