@@ -77,8 +77,8 @@ def _select_data(data_dir, sess, model, f, initial=False):
   else:
     pred = model.predict(sess, images, 512)
     indices, _ = f(np.concatenate(pred, 0), FLAGS.select_size)
-    selected_images = np.take(images, indices)
-    selected_classes = np.take(classes, indices)
+    selected_images = images[indices]
+    selected_classes = classes[indices]
     images = np.delete(images, indices)
     classes = np.delete(classes, indices)
   np.save('{}/cifar10_images'.format(data_dir), images)
@@ -108,7 +108,7 @@ def main(_):
 if __name__ == '__main__':
   # FLAGS._parse_flags()
   # _download_if_needed(DATA_URL, DATA_DIR)
-  # _init_or_reset_data(DATA_DIR)
+  _init_or_reset_data(DATA_DIR)
   tf.app.run()
 
 
