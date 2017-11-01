@@ -111,12 +111,11 @@ class Cifar10BCNN(object):
         self.categorical: self.y
       }
       self.inference = ed.KLqp(latent_vars, data=data)
-      self.inference.initialize()
+      self.inference.initialize(n_iters=1000000)
 
 
   def optimize(self, session, x, y, epochs, batch_size):
     print('Optimizing %s training examples' % x.shape[0])
-    self.inference.initialize(n_iter=(((x.shape[0] / batch_size) + 1) * epochs))
     for i in range(1, epochs + 1):
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         self.optimize_batch(batch_x, batch_y)
