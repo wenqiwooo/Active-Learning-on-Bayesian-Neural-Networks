@@ -104,8 +104,8 @@ def main(_):
       sess.run(tf.global_variables_initializer())
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
-      images += new_images
-      classes += new_classes
+      images = np.concatenate([images, new_images], 0)
+      classes = np.concatenate([classes, new_classes], 0)
     tf.reset_default_graph()
 
 

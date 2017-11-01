@@ -1,5 +1,5 @@
+from tqdm import tqdm
 from edward.models import Categorical, Normal
-
 import numpy as np
 import tensorflow as tf
 import edward as ed
@@ -111,12 +111,14 @@ class Cifar10BCNN(object):
         self.categorical: self.y
       }
       self.inference = ed.KLqp(latent_vars, data=data)
-      self.inference.initialize(n_iter=10000)
+      self.inference.initialize()
 
 
   def optimize(self, session, x, y, epochs, batch_size):
     print('Optimizing %s training examples' % x.shape[0])
-    for i in range(1, epochs + 1):
+    pbar = tqdm(total=epochs)
+    for i in tqdm(range(1, epochs + 1)):
+      pbar.update()
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         self.optimize_batch(batch_x, batch_y)
 
@@ -126,8 +128,7 @@ class Cifar10BCNN(object):
       self.x: batch_x,
       self.y: batch_y,
     }
-    info_dict = self.inference.update(feed_dict=feed_dict)
-    self.inference.print_progress(info_dict)
+    self.inference.update(feed_dict=feed_dict)
 
 
   def predict(self, sess, x, batch_size):
