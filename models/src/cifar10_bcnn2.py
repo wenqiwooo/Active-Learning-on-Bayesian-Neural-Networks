@@ -104,7 +104,7 @@ class Cifar10BCNN(object):
     self.qb2 = Normal(
         loc=tf.Variable(tf.random_normal([self.f2_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal[(self.f2_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.f2_shape[-1]]))))
 
     self.qf3 = Normal(
         loc=tf.Variable(tf.random_normal(self.f3_shape)),
