@@ -134,8 +134,10 @@ class Cifar10BCNN(object):
     return info['loss']
 
 
-  def validate(self, sess, x, y, batch_size):
-    pred = self.predict(sess, x, batch_size)
+  def validate(self, sess, x, y, batch_size, classes, predicts):
+    pred = np.zeros((y.shape[0], classes))
+    for i in range(predicts):
+      pred += self.predict(sess, x, batch_size)
     pred_results = np.squeeze(np.argmax(pred, axis=1))
     return np.mean(pred_results == y)
 
