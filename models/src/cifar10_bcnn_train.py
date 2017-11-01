@@ -88,7 +88,6 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 
 def main(_):
-  model = Cifar10BCNN()
   # saver = tf.train.Saver()
   # save_path = os.path.join(SAVE_DIR, 'cifar10_bcnn.ckpt')
   # if os.path.exists(save_path):
@@ -100,12 +99,14 @@ def main(_):
   images, classes = _select_data(
       DATA_DIR, initial=True)
   for i in range(FLAGS.fetches):
+    model = Cifar10BCNN()
     with tf.Session() as sess:
       sess.run(tf.global_variables_initializer())
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
       images += new_images
       classes += new_classes
+    tf.reset_default_graph()
 
 
 if __name__ == '__main__':
