@@ -122,7 +122,7 @@ class Cifar10BCNN(object):
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         epoch_loss += self.optimize_batch(batch_x, batch_y)
       pbar.update()
-      pbar.set_description('Epoch loss{}'.format(epoch_loss / len(x)))      
+      pbar.set_description('Epoch loss: {}\n'.format(epoch_loss / len(x)))      
 
 
   def optimize_batch(self, batch_x, batch_y):
