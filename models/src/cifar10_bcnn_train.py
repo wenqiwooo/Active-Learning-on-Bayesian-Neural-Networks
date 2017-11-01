@@ -13,8 +13,8 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 50, 'Number of data fetches.')
 flags.DEFINE_integer('epochs', 20, 'Number of epochs for each dataset.')
-flags.DEFINE_integer('batch_size', 60, 'Minibatch size.')
-flags.DEFINE_integer('select_size', 128, 'Data selection size.')
+flags.DEFINE_integer('batch_size', 256, 'Minibatch size.')
+flags.DEFINE_integer('select_size', 512, 'Data selection size.')
 
 
 SAVE_DIR = '../checkpoint'
@@ -48,6 +48,7 @@ def max_entropy(pred, k):
   k_largest = np.argpartition(entropy, -k)[-k:]
   bitmap = np.zeros(entropy.shape)
   bitmap[k_largest] = 1
+  print(k_largest)
   return k_largest, bitmap
 
 
@@ -75,8 +76,11 @@ def _select_data(data_dir, sess, model, f, initial=False):
     images = images[FLAGS.select_size:]
     classes = classes[FLAGS.select_size:]
   else:
-    pred = model.predict(sess, images, 512)
-    indices, _ = f(np.concatenate(pred, 0), FLAGS.select_size)
+    pred = model.predict(sess, images, FLAGS.batch_size)
+    pred = np.concatenate(pred, 0)
+    print("PRED SHAPE")
+    print(pred.shape)
+    indices, _ = f(pred, FLAGS.select_size)
     selected_images = images[indices]
     selected_classes = classes[indices]
     images = np.delete(images, indices)
@@ -103,8 +107,6 @@ def main(_):
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       saver.save(sess, save_path)
       images, classes = _select_data(DATA_DIR, sess, model, max_entropy)
-      print(images.shape)
-      print(classes.shape)
 
 
 if __name__ == '__main__':
