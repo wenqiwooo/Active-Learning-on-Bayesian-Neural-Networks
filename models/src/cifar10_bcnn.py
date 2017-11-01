@@ -132,7 +132,7 @@ class Cifar10BCNN(object):
 
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
-    pred = np.zeros((y.shape[0], classes))
+    pred = np.zeros((y.shape[0], classes), dtype=np.float32)
     for i in range(predicts):
       pred += self.predict(sess, x, batch_size)
     pred_results = np.squeeze(np.argmax(pred, axis=1))
@@ -143,20 +143,23 @@ class Cifar10BCNN(object):
     predictions = []
     pbar = tqdm(total=len(x) // batch_size + 1)
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
-      predicted_probs = sess.run(self.predict_batch(),
-          feed_dict={
-            self.x: batch_x
-          })
+      # predicted_probs = sess.run(self.predict_batch(),
+      #     feed_dict={
+      #       self.x: batch_x
+      #     })
+      predicted_probs = self.predict_batch(batch_x)
       predictions.extend(predicted_probs)
       pbar.update()
     pbar.close()
     return np.array(predictions)
 
 
-  def predict_batch(self):
+  def predict_batch(self, batch_x):
+    batch_x = tf.convert_to_tensor(batch_x, np.float32)
+
     kernel1 = self.qf1.sample()
     bias1 = self.qb1.sample()
-    conv1 = tf.nn.bias_add(tf.nn.conv2d(self.x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), bias1)
+    conv1 = tf.nn.bias_add(tf.nn.conv2d(batch_x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), bias1)
     conv1 = tf.nn.relu(conv1)
     maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
 
@@ -173,4 +176,4 @@ class Cifar10BCNN(object):
     fc_bias = self.qfcb.sample()
     probs = tf.nn.softmax(tf.matmul(conv_out, fc_weights) + fc_bias)
 
-    return probs
+    return probs.eval()
