@@ -133,25 +133,21 @@ class Cifar10BCNN(object):
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
     pred = np.zeros((y.shape[0], classes), dtype=np.float32)
-    
-    print(y[0])
 
     for i in range(predicts):
       result = self.predict(sess, x, batch_size)
       pred += result
-      print(result[0])
-
-    print(pred[0])
 
     pred_results = np.squeeze(np.argmax(pred, axis=1))
-    return np.mean(pred_results == y)
+    return np.mean(pred_results+1 == y)
 
 
   def predict(self, sess, x, batch_size):
     predictions = []
     pbar = tqdm(total=len(x) // batch_size + 1)
+    session = ed.get_session()
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
-      predicted_probs = sess.run(self.predict_batch(),
+      predicted_probs = session.run(self.predict_batch(),
           feed_dict={
             self.x: batch_x
           })
