@@ -49,7 +49,7 @@ def BCNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   # 4 x 4 x 64
   # print(maxpool3.get_shape())
 
-  conv_out = tf.reshape(maxpool2, (-1, 2048))
+  conv_out = tf.reshape(maxpool3, (-1, 1024))
   fc1 = tf.matmul(conv_out, fc_w1) + fc_b1
   fc1 = tf.nn.relu(fc1)
   # print(fc1.get_shape())
@@ -80,7 +80,7 @@ class Cifar10BCNN(object):
     self.b3 = Normal(
         loc=tf.zeros(self.f3_shape[-1]), scale=tf.ones(self.f3_shape[-1]))
 
-    self.fc_w1_shape = (2048, 64)
+    self.fc_w1_shape = (1024, 64)
     self.fc_w1 = Normal(
         loc=tf.zeros(self.fc_w1_shape), scale=tf.ones(self.fc_w1_shape))
     self.fc_b1 = Normal(
