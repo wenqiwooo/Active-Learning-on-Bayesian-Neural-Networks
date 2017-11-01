@@ -97,7 +97,7 @@ def main(_):
       sess.run(tf.global_variables_initializer())
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       acc = model.validate(sess, test_images, test_classes, FLAGS.batch_size)
-      print('Validation accuracy: {} %\n'.format(acc * 100))
+      print('Validation accuracy: {} %'.format(acc * 100))
       new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
       images = np.concatenate([images, new_images], 0)
       classes = np.concatenate([classes, new_classes], 0)
