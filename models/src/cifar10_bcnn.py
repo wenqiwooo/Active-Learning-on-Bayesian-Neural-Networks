@@ -133,9 +133,12 @@ class Cifar10BCNN(object):
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
     pred = np.zeros((y.shape[0], classes), dtype=np.float32)
+    print("Y\n")
+    print(y[0])
 
     for i in range(predicts):
       result = self.predict(sess, x, batch_size)
+      print(np.argmax(result[0]))
       pred += result
 
     pred_results = np.squeeze(np.argmax(pred, axis=1))
