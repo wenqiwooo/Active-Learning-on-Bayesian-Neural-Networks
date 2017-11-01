@@ -14,7 +14,7 @@ FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 50, 'Number of data fetches.')
 flags.DEFINE_integer('epochs', 20, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('batch_size', 60, 'Minibatch size.')
-flags.DEFINE_integer('select_size', 512, 'Data selection size.')
+flags.DEFINE_integer('select_size', 128, 'Data selection size.')
 
 
 SAVE_DIR = '../checkpoint'
@@ -103,6 +103,8 @@ def main(_):
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       saver.save(sess, save_path)
       images, classes = _select_data(DATA_DIR, sess, model, max_entropy)
+      print(images.shape)
+      print(classes.shape)
 
 
 if __name__ == '__main__':

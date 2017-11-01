@@ -134,6 +134,7 @@ class Cifar10BCNN(object):
   def predict(self, sess, x, batch_size):
     predictions = []
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
+      print(batch_x.shape)
       predicted_probs = sess.run([self.predict_batch()],
           feed_dict={
             self.x: batch_x
