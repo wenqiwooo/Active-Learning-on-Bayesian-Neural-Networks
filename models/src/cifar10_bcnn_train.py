@@ -75,7 +75,7 @@ def _select_data(data_dir, sess, model, f, initial=False):
     images = images[FLAGS.select_size:]
     classes = classes[FLAGS.select_size:]
   else:
-    pred = model.predict(images, len(images))
+    pred = model.predict(sess, images, len(images))
     indices, _ = f(pred, FLAGS.select_size)
     selected_images = np.take(images)
     selected_classes = np.take(classes)
