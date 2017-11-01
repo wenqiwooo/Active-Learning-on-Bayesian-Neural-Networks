@@ -94,10 +94,10 @@ def main(_):
   test_classes = test_classes[:1000]
   images, classes = _select_data(
       DATA_DIR, initial=True)
-  for i in range(FLAGS.fetches):
+  with tf.Session() as sess:
     model = Cifar10BCNN()
-    with tf.Session() as sess:
-      sess.run(tf.global_variables_initializer())
+    sess.run(tf.global_variables_initializer())
+    for i in range(FLAGS.fetches):
       model.optimize(sess, test_images, test_classes, FLAGS.epochs, FLAGS.batch_size)
       acc = model.validate(
           sess, test_images, test_classes, FLAGS.batch_size, FLAGS.classes, 20)
@@ -105,7 +105,7 @@ def main(_):
       # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
       # images = np.concatenate([images, new_images], 0)
       # classes = np.concatenate([classes, new_classes], 0)
-    tf.reset_default_graph()
+    # tf.reset_default_graph()
 
 
 if __name__ == '__main__':
