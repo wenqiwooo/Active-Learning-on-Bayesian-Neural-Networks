@@ -39,16 +39,16 @@ class Cifar10BCNN(object):
   def setup_system(self):
     with tf.variable_scope('bcnn'):
       self.filter1_shape = (3, 3, 3, 64)
-      self.filter1 = Normal(loc=tf.zeros(self.filter1_shape), scale=tf.ones(self.filter1_shape))
-      self.bias1 = Normal(loc=tf.zeros(64), scale=tf.ones(64))
+      self.filter1 = Normal(loc=tf.zeros(self.filter1_shape), scale=tf.ones(self.filter1_shape)*0.1)
+      self.bias1 = Normal(loc=tf.zeros(64), scale=tf.ones(64)*0.1)
 
       conv1 = tf.nn.bias_add(tf.nn.conv2d(self.x, self.filter1, (1, 1, 1, 1), 'SAME', name='conv1'), self.bias1)
       conv1 = tf.nn.relu(conv1)
       maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
 
       self.filter2_shape = (3, 3, 64, 128)
-      self.filter2 = Normal(loc=tf.zeros(self.filter2_shape), scale=tf.ones(self.filter2_shape))
-      self.bias2 = Normal(loc=tf.zeros(128), scale=tf.ones(128))
+      self.filter2 = Normal(loc=tf.zeros(self.filter2_shape), scale=tf.ones(self.filter2_shape)*0.1)
+      self.bias2 = Normal(loc=tf.zeros(128), scale=tf.ones(128)*0.1)
 
       conv2 = tf.nn.bias_add(tf.nn.conv2d(maxpool1, self.filter2, (1, 1, 1, 1), 'SAME', name='conv2'), self.bias2)
       conv2 = tf.nn.relu(conv2)
@@ -56,8 +56,8 @@ class Cifar10BCNN(object):
 
       conv_out = tf.reshape(maxpool2, (-1, 8192))
 
-      self.fc_weights = Normal(loc=tf.zeros([8192, 10]), scale=tf.ones([8192, 10]))
-      self.fc_bias = Normal(loc=tf.zeros(10), scale=tf.ones(10))
+      self.fc_weights = Normal(loc=tf.zeros([8192, 10]), scale=tf.ones([8192, 10])*0.1)
+      self.fc_bias = Normal(loc=tf.zeros(10), scale=tf.ones(10)*0.1)
       self.scores = tf.matmul(conv_out, self.fc_weights) + self.fc_bias
 
       self.categorical = Categorical(self.scores)
@@ -133,12 +133,9 @@ class Cifar10BCNN(object):
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
     pred = np.zeros((y.shape[0], classes), dtype=np.float32)
-    print("Y\n")
-    print(y[0])
 
     for i in range(predicts):
       result = self.predict(sess, x, batch_size)
-      print(np.argmax(result[0]))
       pred += result
 
     pred_results = np.squeeze(np.argmax(pred, axis=1))
