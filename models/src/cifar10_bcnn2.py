@@ -3,6 +3,8 @@ from edward.models import Categorical, Normal
 import numpy as np
 import tensorflow as tf
 import edward as ed
+from tqdm import tqdm
+
 
 def mini_batch(batch_size, x, y=None, shuffle=False):
   assert y is None or x.shape[0] == y.shape[0]
