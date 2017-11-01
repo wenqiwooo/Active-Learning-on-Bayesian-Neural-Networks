@@ -133,8 +133,25 @@ class Cifar10BCNN(object):
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
     pred = np.zeros((y.shape[0], classes), dtype=np.float32)
+    
     for i in range(predicts):
-      pred += self.predict(sess, x, batch_size)
+      x = tf.convert_to_tensor(x, np.float32)
+      kernel1 = self.qf1.sample()
+      bias1 = self.qb1.sample()
+      conv1 = tf.nn.bias_add(tf.nn.conv2d(x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), bias1)
+      conv1 = tf.nn.relu(conv1)
+      maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
+      kernel2 = self.qf2.sample()
+      bias2 = self.qb2.sample()
+      conv2 = tf.nn.bias_add(tf.nn.conv2d(maxpool1, kernel2, (1, 1, 1, 1), 'SAME', name='conv2'), bias2)
+      conv2 = tf.nn.relu(conv2)
+      maxpool2 = tf.nn.max_pool(conv2, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool2')
+      conv_out = tf.reshape(maxpool2, (-1, 8192))
+      fc_weights = self.qfcw.sample()
+      fc_bias = self.qfcb.sample()
+      probs = tf.nn.softmax(tf.matmul(conv_out, fc_weights) + fc_bias)
+      pred += probs.eval()
+
     pred_results = np.squeeze(np.argmax(pred, axis=1))
     return np.mean(pred_results == y)
 
