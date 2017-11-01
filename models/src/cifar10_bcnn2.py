@@ -60,7 +60,11 @@ def BCNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
 
 
 class Cifar10BCNN(object):
-  def __init__(self):
+  def __init__(self, epochs, data_size, batch_size):
+    self.epochs = epochs
+    self.data_size = data_size
+    self.batch_size = batch_size
+
     self.x = tf.placeholder(tf.float32, shape=(None, 32, 32, 3))
     self.y = tf.placeholder(tf.int32, shape=(None,))
 
@@ -145,16 +149,14 @@ class Cifar10BCNN(object):
         self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.y})
 
-    self.inference.initialize()
+    iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
+    self.inference.initialize(
+        n_iter=iterations, 
+        scale={self.categorical: self.data_size / self.batch_size})
 
 
   def optimize(self, X, Y, epochs, batch_size):
-    data_size = X.shape[0]
-    iterations = epochs * math.ceil(data_size / batch_size)
-    # self.inference.initialize(
-    #     n_iter=iterations, scale={self.categorical: data_size / batch_size})
-    print('Optimizing {} training examples'.format(data_size))
-
+    print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
         info_dict = self.inference.update(feed_dict={

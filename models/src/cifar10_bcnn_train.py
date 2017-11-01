@@ -94,7 +94,7 @@ def main(_):
   test_classes = classes[:1000]
 
   with tf.Session() as sess:
-    model = Cifar10BCNN()
+    model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
     sess.run(tf.global_variables_initializer())
     model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
     acc = model.validate(test_images, test_classes, FLAGS.batch_size, 8)
