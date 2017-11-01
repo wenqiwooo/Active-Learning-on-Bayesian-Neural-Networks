@@ -115,7 +115,7 @@ class Cifar10BCNN(object):
 
 
   def optimize(self, session, x, y, epochs, batch_size):
-    for i in range(1, batch_size + 1):
+    for i in range(1, epochs + 1):
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         self.optimize_batch(batch_x, batch_y)
 
@@ -131,6 +131,8 @@ class Cifar10BCNN(object):
 
   def predict(self, sess, x, batch_size):
     predictions = []
+    print("X SHAPE AT START OF PREDICT")
+    print(x.shape)
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
       print(batch_x.shape)
       predicted_probs = sess.run([self.predict_batch()],

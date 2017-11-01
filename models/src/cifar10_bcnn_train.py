@@ -13,8 +13,8 @@ flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 50, 'Number of data fetches.')
 flags.DEFINE_integer('epochs', 20, 'Number of epochs for each dataset.')
-flags.DEFINE_integer('batch_size', 60, 'Minibatch size.')
-flags.DEFINE_integer('select_size', 128, 'Data selection size.')
+flags.DEFINE_integer('batch_size', 256, 'Minibatch size.')
+flags.DEFINE_integer('select_size', 512, 'Data selection size.')
 
 
 SAVE_DIR = '../checkpoint'
@@ -75,7 +75,9 @@ def _select_data(data_dir, sess, model, f, initial=False):
     images = images[FLAGS.select_size:]
     classes = classes[FLAGS.select_size:]
   else:
-    pred = model.predict(sess, images, 512)
+    print("IMAGES SHAPE BEFORE PREDICT")
+    print(images.shape)
+    pred = model.predict(sess, images, FLAGS.batch_size)
     indices, _ = f(np.concatenate(pred, 0), FLAGS.select_size)
     selected_images = images[indices]
     selected_classes = classes[indices]
@@ -103,8 +105,9 @@ def main(_):
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       saver.save(sess, save_path)
       images, classes = _select_data(DATA_DIR, sess, model, max_entropy)
-      print(images.shape)
-      print(classes.shape)
+      #print("BEFORE PASSING TO MODEL")
+      #print(images.shape)
+      #print(classes.shape)
 
 
 if __name__ == '__main__':
