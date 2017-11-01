@@ -38,7 +38,7 @@ class Cifar10BCNN(object):
 
   def setup_system(self):
     with tf.variable_scope('bcnn'):
-      self.filter1_shape = (3, 3, 3, 64)
+      self.filter1_shape = (5, 5, 3, 64)
       self.filter1 = Normal(loc=tf.zeros(self.filter1_shape), scale=tf.ones(self.filter1_shape))
       self.bias1 = Normal(loc=tf.zeros(64), scale=tf.ones(64))
 
@@ -46,7 +46,7 @@ class Cifar10BCNN(object):
       conv1 = tf.nn.relu(conv1)
       maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
 
-      self.filter2_shape = (3, 3, 64, 128)
+      self.filter2_shape = (5, 5, 64, 128)
       self.filter2 = Normal(loc=tf.zeros(self.filter2_shape), scale=tf.ones(self.filter2_shape))
       self.bias2 = Normal(loc=tf.zeros(128), scale=tf.ones(128))
 
