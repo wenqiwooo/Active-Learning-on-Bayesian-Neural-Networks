@@ -137,7 +137,7 @@ class Cifar10BCNN(object):
             self.x: batch_x
           })
       predictions.extend(predicted_probs)
-    return predictions
+    return np.array(predictions)
 
 
   def predict_batch(self):
