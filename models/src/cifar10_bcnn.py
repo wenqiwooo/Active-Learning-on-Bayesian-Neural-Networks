@@ -114,7 +114,7 @@ class Cifar10BCNN(object):
   def optimize(self, session, x, y, epochs, batch_size):
     print('Optimizing %s training examples' % x.shape[0])
     pbar = tqdm(total=epochs)
-    for i in tqdm(range(1, epochs + 1)):
+    for i in range(1, epochs + 1):
       epoch_loss = 0
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         epoch_loss += self.optimize_batch(batch_x, batch_y)
