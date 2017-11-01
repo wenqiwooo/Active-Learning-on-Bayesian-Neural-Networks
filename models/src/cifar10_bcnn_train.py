@@ -90,6 +90,8 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 def main(_):
   test_images, test_classes, _ = load_test_data()
+  test_images = test_images[:1000]
+  test_classes = test_classes[:1000]
   images, classes = _select_data(
       DATA_DIR, initial=True)
   for i in range(FLAGS.fetches):
@@ -98,11 +100,11 @@ def main(_):
       sess.run(tf.global_variables_initializer())
       model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
       acc = model.validate(
-          sess, test_images, test_classes, FLAGS.batch_size, FLAGS.classes, 5)
+          sess, test_images, test_classes, FLAGS.batch_size, FLAGS.classes, 50)
       print('Validation accuracy: {} %'.format(acc * 100))
-      new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
-      images = np.concatenate([images, new_images], 0)
-      classes = np.concatenate([classes, new_classes], 0)
+      # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
+      # images = np.concatenate([images, new_images], 0)
+      # classes = np.concatenate([classes, new_classes], 0)
     tf.reset_default_graph()
 
 

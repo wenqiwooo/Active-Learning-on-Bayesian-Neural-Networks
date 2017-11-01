@@ -118,7 +118,7 @@ class Cifar10BCNN(object):
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         epoch_loss += self.optimize_batch(batch_x, batch_y)
       pbar.update()
-      pbar.set_postfix(loss=epoch_loss / len(x), refresh=False)  
+      pbar.set_postfix(loss=epoch_loss/len(x), refresh=False)  
     pbar.close() 
 
 
@@ -127,8 +127,8 @@ class Cifar10BCNN(object):
       self.x: batch_x,
       self.y: batch_y,
     }
-    info = self.inference.update(feed_dict=feed_dict)
-    return info['loss']
+    info_dict = self.inference.update(feed_dict=feed_dict)
+    return info_dict['loss']
 
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
