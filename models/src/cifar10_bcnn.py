@@ -155,7 +155,6 @@ class Cifar10BCNN(object):
           feed_dict={
             self.x: batch_x
           })
-      predicted_probs = self.predict_batch(batch_x)
       predictions.extend(predicted_probs)
       pbar.update()
     pbar.close()
