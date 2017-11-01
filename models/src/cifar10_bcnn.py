@@ -4,7 +4,7 @@ import numpy as np
 import tensorflow as tf
 import edward as ed
 
-def mini_batch(x, y = None, shuffle = True, batch_size = 128):
+def mini_batch(x, y=None, shuffle=True, batch_size=128):
   assert y is None or x.shape[0] == y.shape[0]
 
   N = x.shape[0]
@@ -122,7 +122,8 @@ class Cifar10BCNN(object):
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         epoch_loss += self.optimize_batch(batch_x, batch_y)
       pbar.update()
-      pbar.set_postfix(loss=epoch_loss / len(x), refresh=False)   
+      pbar.set_postfix(loss=epoch_loss / len(x), refresh=False)  
+    pbar.close() 
 
 
   def optimize_batch(self, batch_x, batch_y):
@@ -151,7 +152,8 @@ class Cifar10BCNN(object):
             self.x: batch_x
           })
       predictions.extend(predicted_probs)
-      pbar.update() 
+      pbar.update()
+    pbar.close()
     return np.array(predictions)
 
 
