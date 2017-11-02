@@ -105,7 +105,7 @@ def main(_):
     # images = np.concatenate([images, new_images], 0)
     # classes = np.concatenate([classes, new_classes], 0)
 
-    model = Cifar10CNN(lr=0.05)
+    model = Cifar10CNN()
     sess.run(tf.global_variables_initializer())
     model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
     acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)

@@ -55,8 +55,9 @@ def CNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
 
 
 class Cifar10CNN(object):
-  def __init__(self, lr):
-    self.lr = lr
+  def __init__(self):
+    self.global_step = tf.Variable(
+        initial_value=0, name='global_step', trainable=False)
 
     self.X = tf.placeholder(tf.float32, shape=(None, 32, 32, 3))
     self.Y = tf.placeholder(tf.int32, shape=(None,))
@@ -96,11 +97,8 @@ class Cifar10CNN(object):
         tf.nn.sparse_softmax_cross_entropy_with_logits(
             logits=self.nn, labels=self.Y))
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
-    tvars = tf.trainable_variables()
-    # grads, _ = tf.clip_by_global_norm(
-    #     tf.gradients(self.loss, tvars), self.max_grad_norm)
-    self.train = optimizer.apply_gradients(zip(grads, tvars))
+    optimizer = tf.train.RMSPropOptimizer(
+        learning_rate=1e-4).minimize(self.loss, global_step=self.global_step)
 
   def optimize(self, sess, X, Y, epochs, batch_size):
     for epoch in range(epochs):
