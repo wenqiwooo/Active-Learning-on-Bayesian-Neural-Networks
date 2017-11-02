@@ -55,7 +55,7 @@ def CNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
 
 
 class Cifar10CNN(object):
-  def __init__(self, lr, max_grad_norm):
+  def __init__(self, lr):
     self.lr = lr
     self.max_grad_norm = max_grad_norm
 
