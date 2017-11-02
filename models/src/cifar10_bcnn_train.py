@@ -8,6 +8,7 @@ from tqdm import tqdm
 from download import maybe_download_and_extract
 from cifar10 import load_training_data, load_test_data
 from cifar10_bcnn2 import Cifar10BCNN
+from cifar10_cnn import Cifar10CNN
 
 
 flags = tf.app.flags
@@ -95,14 +96,20 @@ def main(_):
   test_classes = test_classes[:1000]
 
   with tf.Session() as sess:
-    model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
-    sess.run(tf.global_variables_initializer())
-    model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
-    acc = model.validate(test_images, test_classes, FLAGS.batch_size, 8)
-    print(acc)
+    # model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
+    # sess.run(tf.global_variables_initializer())
+    # model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
+    # acc = model.validate(test_images, test_classes, FLAGS.batch_size, 8)
+    # print(acc)
     # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
     # images = np.concatenate([images, new_images], 0)
     # classes = np.concatenate([classes, new_classes], 0)
+
+    model = Cifar10CNN(lr=0.01, max_grad_norm=5)
+    sess.run(tf.global_variables_initializer())
+    model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
+    acc = model.validate(sess, test_images, test_classes)
+    print('Test accuracy: {} %'.format(acc * 100))
 
 
 if __name__ == '__main__':
