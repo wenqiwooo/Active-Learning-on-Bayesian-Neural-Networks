@@ -60,6 +60,9 @@ class Cifar10BCNN(object):
     self.data_size = data_size
     self.batch_size = batch_size
 
+    self.global_step = tf.Variable(
+        initial_value=0, name='global_step', trainable=False)
+
     self.x = tf.placeholder(tf.float32, shape=(None, 32, 32, 3))
     self.y = tf.placeholder(tf.int32, shape=(None,))
 
@@ -144,10 +147,11 @@ class Cifar10BCNN(object):
         self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.y})
 
-    optimizer = tf.train.AdamOptimizer(learning_rate=1e-4)
+    optimizer = tf.train.AdamOptimizer(learning_rate=1e-3)
 
     iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
-    self.inference.initialize(n_iter=iterations, optimizer=optimizer)
+    self.inference.initialize(
+        n_iter=iterations, optimizer=optimizer, global_step=self.global_step)
     # self.inference.initialize(
     #     n_iter=iterations, 
     #     scale={self.categorical: self.data_size / self.batch_size})
