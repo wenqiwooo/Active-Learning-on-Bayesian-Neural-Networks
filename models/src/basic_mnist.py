@@ -150,17 +150,16 @@ def BCNN(f1, b1, f2, b2, fc_w1, fc_b1, fc_w2, fc_b2, X):
       conv2, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool2')
   # 7 x 7 x 32
 
-  conv_out = tf.reshape(maxpool2, (-1, 392))
-  # conv_out = tf.reshape(maxpool2, (-1, 1568))
+  conv_out = tf.reshape(maxpool2, (-1, 784))
   fc1 = tf.matmul(conv_out, fc_w1) + fc_b1
-  # fc1 = tf.nn.relu(fc1)
-  # fc2 = tf.matmul(fc1, fc_w2) + fc_b2
+  fc1 = tf.nn.relu(fc1)
+  fc2 = tf.matmul(fc1, fc_w2) + fc_b2
 
   return fc1
 
 
 class MnistCNN(object):
-  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=5000, 
+  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=20000, 
       batch_size=100):
     self.input_dim = input_dim
     self.output_dim = output_dim
@@ -171,17 +170,17 @@ class MnistCNN(object):
     self.Y_placeholder = tf.placeholder(tf.int32, (None,))
 
     # Prior distribution
-    self.f1_shape = (5, 5, 1, 4)
+    self.f1_shape = (5, 5, 1, 8)
     self.f1 = Normal(loc=tf.zeros(self.f1_shape), scale=tf.ones(self.f1_shape))
     self.b1 = Normal(
         loc=tf.zeros(self.f1_shape[-1]),scale=tf.ones(self.f1_shape[-1]))
 
-    self.f2_shape = (5, 5, 4, 8)
+    self.f2_shape = (5, 5, 8, 16)
     self.f2 = Normal(loc=tf.zeros(self.f2_shape), scale=tf.ones(self.f2_shape))
     self.b2 = Normal(
         loc=tf.zeros(self.f2_shape[-1]), scale=tf.ones(self.f2_shape[-1]))
 
-    self.fc_w1_shape = (392, 10)
+    self.fc_w1_shape = (784, 64)
     self.fc_w1 = Normal(
         loc=tf.zeros(self.fc_w1_shape), scale=tf.ones(self.fc_w1_shape))
     self.fc_b1 = Normal(
@@ -234,7 +233,7 @@ class MnistCNN(object):
         self.f1: self.qf1, self.b1: self.qb1,
         self.f2: self.qf2, self.b2: self.qb2,
         self.fc_w1: self.qfc_w1, self.fc_b1: self.qfc_b1,
-        # self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
+        self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.Y_placeholder})
 
     self.inference.initialize(n_iter=self.iterations, 
