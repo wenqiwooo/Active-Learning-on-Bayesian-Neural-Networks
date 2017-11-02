@@ -6,6 +6,132 @@ from edward.models import Categorical, Normal
 from tqdm import tqdm
 
 
+def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
+  fc1 = tf.nn.relu(tf.matmul(X, w1) + b1)
+  fc2 = tf.nn.relu(tf.matmul(fc1, w2) + b2)
+  fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
+  fc4 = tf.matmul(fc3, w4) + b4
+  return fc4 
+
+
+class MnistMLP(object):
+  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=5000, 
+      batch_size=100):
+    self.input_dim = input_dim
+    self.output_dim = output_dim
+    self.iterations = iterations
+    self.batch_size = batch_size
+
+    self.X_placeholder = tf.placeholder(tf.float32, (None, self.input_dim))
+    self.Y_placeholder = tf.placeholder(tf.int32, (None,))
+
+    # Prior distribution
+    self.w1_shape = (784, 392)
+    self.w2_shape = (392, 196)
+    self.w3_shape = (196, 64)
+    self.w4_shape = (64, 10)
+
+    self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
+    self.b1 = Normal(
+        loc=tf.zeros(self.w1_shape[-1]),scale=tf.ones(self.w1_shape[-1]))
+
+    self.w2 = Normal(loc=tf.zeros(self.w2_shape), scale=tf.ones(self.w2_shape))
+    self.b2 = Normal(
+        loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]))
+
+    self.w3 = Normal(
+        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape))
+    self.b3 = Normal(
+        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]))
+
+    self.w4 = Normal(
+        loc=tf.zeros(self.w4_shape), scale=tf.ones(self.w4_shape))
+    self.b4 = Normal(
+        loc=tf.zeros(self.w4_shape[-1]), scale=tf.ones(self.w4_shape[-1]))
+
+    self.nn = MLP(self.w1, self.b1, self.w2, self.b2, self.w3, self.b3, 
+        self.w4, self.b4, self.X_placeholder)
+    self.categorical = Categorical(self.nn)
+
+    # Q distribution
+    self.qw1 = Normal(
+        loc=tf.Variable(tf.random_normal(self.w1_shape)),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape))))
+    self.qb1 = Normal(
+        loc=tf.Variable(tf.random_normal([self.w1_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal([self.w1_shape[-1]]))))
+
+    self.qw2 = Normal(
+        loc=tf.Variable(tf.random_normal(self.w2_shape)),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape))))
+    self.qb2 = Normal(
+        loc=tf.Variable(tf.random_normal([self.w2_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal([self.w2_shape[-1]]))))
+
+    self.qw3 = Normal(
+        loc=tf.Variable(tf.random_normal(self.w3_shape)),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape))))
+    self.qb3 = Normal(
+        loc=tf.Variable(tf.random_normal([self.w3_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal([self.w3_shape[-1]]))))
+
+    self.qw4 = Normal(
+        loc=tf.Variable(tf.random_normal(self.w4_shape)),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape))))
+    self.qb4 = Normal(
+        loc=tf.Variable(tf.random_normal([self.w4_shape[-1]])),
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal([self.w4_shape[-1]]))))
+
+    self.inference = ed.KLqp({
+        self.w1: self.qw1, self.b1: self.qb1,
+        self.w2: self.qw2, self.b2: self.qb2,
+        self.w3: self.qw3, self.b3: self.qb3,
+        self.w4: self.qw4, self.b4: self.qb4,
+      }, data={self.categorical: self.Y_placeholder})
+
+    self.inference.initialize(n_iter=self.iterations, 
+        scale={self.categorical: mnist.train.num_examples / self.batch_size})
+
+  def optimize(self, mnist):
+    for _ in range(self.inference.n_iter):
+      X_batch, Y_batch = mnist.train.next_batch(self.batch_size)
+      info_dict = self.inference.update(feed_dict={
+          self.X_placeholder: X_batch,
+          self.Y_placeholder: Y_batch
+        })
+      self.inference.print_progress(info_dict)
+
+  def validate(self, mnist, n_samples):
+    X_test = mnist.test.images
+    Y_test = mnist.test.labels
+    probs = []
+    for _ in range(n_samples):
+      prob = tf.nn.softmax(self.realize_network(X_test))
+      probs.append(prob.eval())
+    accuracies = []
+    for prob in probs:
+      pred = np.argmax(prob, axis=1)
+      acc = (pred == Y_test).mean() * 100
+      accuracies.append(acc)
+    return accuracies
+
+  def realize_network(self, X):
+    sw1 = self.qw1.sample()
+    sb1 = self.qb1.sample()
+    sw2 = self.qw2.sample()
+    sb2 = self.qb2.sample()
+    sw3 = self.qw3.sample()
+    sb3 = self.qb3.sample()
+    sw4 = self.qw4.sample()
+    sb4 = self.qb4.sample()
+    return tf.nn.softmax(MLP(sw1, sb1, sw2, sb2, sw3, sb3,
+        sw4, sb4, X))
+
+
 def BCNN(f1, b1, f2, b2, fc_w1, fc_b1, fc_w2, fc_b2, X):
   X = tf.reshape(X, (-1, 28, 28, 1))
 
