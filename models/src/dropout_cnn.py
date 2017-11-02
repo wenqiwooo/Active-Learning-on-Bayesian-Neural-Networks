@@ -48,7 +48,7 @@ class BayesianCNN(object):
 
         self._model = model
 
-    def optimize(self, x, y, epochs=12, batch_size=128):
+    def optimize(self, x, y, epochs=12, batch_size=32):
         """
         Fits the model given x and y.
 
@@ -131,9 +131,8 @@ class BayesianCNN(object):
         """
 
         probs = []
-        for i in range(num_samples):
-            print(f'Collecting sample: {i+1}')
-            probs += [self._model.predict(x, verbose=1)]
+        for _ in range(num_samples):
+            probs += [self._model.predict(x)]
 
         predictive_mean = np.mean(probs, axis=0)
         predictive_variance = np.var(probs, axis=0)
@@ -171,7 +170,55 @@ class BayesianCNN(object):
         self._model.save(model_path)
         print('Saved trained model at %s ' % model_path)
 
-if __name__ == '__main__':
+
+def sum_of_mean_square_errors(var):
+    """
+    Returns the sum of mean square errors criterion.
+    TODO: Figure out the crietrion here!
+
+    Params:
+        - var: predictive variance from classifier
+
+    Returns: criterion value
+    """
+
+    return np.sum(var)
+
+
+def active_learn(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
+    """
+    Starts an active learning process to train the model
+    """
+    for i in range(iters):
+        print(f'Running active learning iteration {i+1}')
+
+        # Naive selection: just choosing ONE data point
+        min_var = np.inf
+        idx = None
+        for j in range(len(unobserved_x)):
+            _, var = model.sample(np.delete(unobserved_x, j, axis=0))
+
+            # TODO: I'm not sure if we should sum up the variance like that
+            s = sum_of_mean_square_errors(var)
+            if s < min_var:
+                min_var = s
+                idx = j
+
+        # Add that to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, idx, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, idx, axis=0), axis=0)
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Optimize the model again
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, idx, 0)
+        unobserved_y = np.delete(unobserved_y, idx, 0)
+
+
+def main():
     # the data, shuffled and split between train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -198,41 +245,19 @@ if __name__ == '__main__':
     m = BayesianCNN(keras.losses.kullback_leibler_divergence,
                     keras.optimizers.Adadelta())
 
-    # We initially train the model with only 200 inputs
-    init_x, init_y = x_train[:200], y_train[:200]
+    # We initially train the model with only 50 inputs
+    init_x, init_y = x_train[:50], y_train[:50]
     m.optimize(init_x, init_y)
 
-    # Let the model actively learn on its own!
-    unobserved_x, unobserved_y = x_train[200:], y_train[200:]
+    # Let the model actively learn on its own
+    unobserved_x, unobserved_y = x_train[50:530], y_train[50:530]
+    active_learn(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
 
-    count = 0
-    while count < 1000:
-        if count % 100 == 0:
-            print(f'Running active learning iteration {count}')
-
-        # Run evaluation on unobserved data by sampling 10 times
-        _, var = m.sample(unobserved_x)
-
-        # Find the data that minimizes the sum of all variances
-        # Sum of mean-squared errors criterion (?)
-        # TODO: Would be faster if we select batches instead of one element
-        # at a time
-        idx = np.argmin(np.sum(var, axis=0))
-
-        # Add that to our training data
-        np.append(init_x, unobserved_x[idx])
-        np.append(init_y, unobserved_y[idx])
-
-        # Optimize the model again
-        m.optimize_batch(unobserved_x[idx], unobserved_y[idx])
-
-        # Remove from unobserved data
-        np.delete(unobserved_x, idx, 0)
-        np.delete(unobserved_y, idx, 0)
-
-        count += 1
-
-    # Evaluate our model now!
+    # Evaluate our model against test set!
     loss, accuracy = m.evaluate(x_test, y_test)
-    print(f'Loss: {loss}')
-    print(f'Accuracy: {accuracy}')
+    print(f'Loss: {loss}') # 0.836
+    print(f'Accuracy: {accuracy}') # 0.8219
+
+
+if __name__ == '__main__':
+    main()
