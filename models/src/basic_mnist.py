@@ -236,8 +236,9 @@ class MnistCNN(object):
         self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.Y_placeholder})
 
-    self.inference.initialize(n_iter=self.iterations, 
-        scale={self.categorical: mnist.train.num_examples / self.batch_size})
+    self.inference.initialize(n_iter=self.iterations)
+    # self.inference.initialize(n_iter=self.iterations, 
+    #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
 
   def optimize(self, mnist):
     for _ in range(self.inference.n_iter):
