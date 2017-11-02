@@ -276,7 +276,7 @@ class MnistCNN(object):
 
 
 class MnistModel(object):
-  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=5000, 
+  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=10000, 
       batch_size=100):
     self.input_dim = input_dim
     self.output_dim = output_dim
