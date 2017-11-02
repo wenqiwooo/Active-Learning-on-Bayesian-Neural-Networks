@@ -3,7 +3,6 @@ from tensorflow.examples.tutorials.mnist import input_data
 import tensorflow as tf
 import edward as ed
 from edward.models import Categorical, Normal
-import matplotlib.pyplot as plt
 from tqdm import tqdm
 
 
