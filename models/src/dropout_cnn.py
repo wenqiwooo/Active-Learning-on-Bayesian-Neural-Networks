@@ -223,9 +223,5 @@ if __name__ == '__main__':
         print(f'Loss: {loss}')
         print(f'Accuracy: {accuracy}')
 
-        # Gets the predictive mean and variance, saves it
+        # Gets the predictive mean and variance
         mean, var = m.sample(x_test)
-
-        timestamp = '{:%Y%m%d-%H:%M:%S}'.format(datetime.datetime.now())
-        np.save(f'{sys.argv[3]}/mnist-mean-{timestamp}.npy', mean)
-        np.save(f'{sys.argv[3]}/mnist-var-{timestamp}.npy', var)
