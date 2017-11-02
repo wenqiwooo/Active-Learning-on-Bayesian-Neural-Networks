@@ -98,8 +98,8 @@ def main(_):
   with tf.Session() as sess:
     model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
     sess.run(tf.global_variables_initializer())
-    model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
-    acc = model.validate(test_images, test_classes, FLAGS.batch_size, 1)
+    model.optimize(X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
+    acc = model.validate(X_test, Y_test, FLAGS.batch_size, 3)
     print(acc)
 
     # model = Cifar10CNN()
