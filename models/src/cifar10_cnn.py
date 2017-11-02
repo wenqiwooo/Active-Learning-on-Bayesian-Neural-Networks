@@ -97,7 +97,7 @@ class Cifar10CNN(object):
         tf.nn.sparse_softmax_cross_entropy_with_logits(
             logits=self.nn, labels=self.Y))
 
-    optimizer = tf.train.RMSPropOptimizer(
+    self.train = tf.train.RMSPropOptimizer(
         learning_rate=1e-4).minimize(self.loss, global_step=self.global_step)
 
   def optimize(self, sess, X, Y, epochs, batch_size):
