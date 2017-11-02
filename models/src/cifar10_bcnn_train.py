@@ -14,7 +14,7 @@ from cifar10_cnn import Cifar10CNN
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 10, 'Number of data fetches.')
-flags.DEFINE_integer('epochs', 1, 'Number of epochs for each dataset.')
+flags.DEFINE_integer('epochs', 3, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('classes', 10, 'Data selection size.')
 flags.DEFINE_integer('batch_size', 50, 'Minibatch size.')
 flags.DEFINE_integer('select_size', 10000, 'Data selection size.')
