@@ -99,8 +99,8 @@ class Cifar10CNN(object):
 
     optimizer = tf.train.AdamOptimizer(learning_rate=self.lr)
     tvars = tf.trainable_variables()
-    grads, _ = tf.clip_by_global_norm(
-        tf.gradients(self.loss, tvars), self.max_grad_norm)
+    # grads, _ = tf.clip_by_global_norm(
+    #     tf.gradients(self.loss, tvars), self.max_grad_norm)
     self.train = optimizer.apply_gradients(zip(grads, tvars))
 
   def optimize(self, sess, X, Y, epochs, batch_size):
