@@ -144,8 +144,10 @@ class Cifar10BCNN(object):
         self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.y})
 
+    optimizer = tf.train.RMSPropOptimizer(learning_rate=1e-4)
+
     iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
-    self.inference.initialize(n_iter=iterations)
+    self.inference.initialize(n_iter=iterations, optimizer=optimizer)
     # self.inference.initialize(
     #     n_iter=iterations, 
     #     scale={self.categorical: self.data_size / self.batch_size})
