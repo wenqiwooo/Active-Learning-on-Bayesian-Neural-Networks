@@ -14,7 +14,7 @@ from cifar10_cnn import Cifar10CNN
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 10, 'Number of data fetches.')
-flags.DEFINE_integer('epochs', 50, 'Number of epochs for each dataset.')
+flags.DEFINE_integer('epochs', 1, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('classes', 10, 'Data selection size.')
 flags.DEFINE_integer('batch_size', 50, 'Minibatch size.')
 flags.DEFINE_integer('select_size', 10000, 'Data selection size.')
@@ -108,7 +108,7 @@ def main(_):
     model = Cifar10CNN(lr=0.1, max_grad_norm=5)
     sess.run(tf.global_variables_initializer())
     model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
-    acc = model.validate(sess, test_images, test_classes)
+    acc = model.validate(sess, test_images, test_classes, FLAGS.batch_size)
     print('Test accuracy: {} %'.format(acc * 100))
 
 

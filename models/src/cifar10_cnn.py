@@ -120,7 +120,7 @@ class Cifar10CNN(object):
       pbar.close()
       print('Loss: {}'.format(epoch_loss))
 
-  def validate(self, sess, X_test, Y_test):
+  def validate(self, sess, X_test, Y_test, batch_size):
     score = 0
     for i, (X_batch, Y_batch) in enumerate(
         mini_batch(batch_size, X_test, Y_test)):
