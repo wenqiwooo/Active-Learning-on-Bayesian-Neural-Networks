@@ -168,14 +168,11 @@ class Cifar10BCNN(object):
     for i in tqdm(range(n_samples)):
       prob = self.realize_network(X)
       probs.append(prob.eval())
-
-    accuracies = []
+    acc = 0
     for prob in probs:
       pred = np.argmax(prob, axis=1)
-      acc = (pred == Y_test).mean() * 100
-      accuracies.append(acc)
-
-    return accuracies
+      acc += (pred == Y_test).sum()
+    return acc / len(X_test)
 
 
   def predict(self, X, batch_size):

@@ -15,7 +15,7 @@ from cifar10_cnn import Cifar10CNN
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 10, 'Number of data fetches.')
-flags.DEFINE_integer('epochs', 50, 'Number of epochs for each dataset.')
+flags.DEFINE_integer('epochs', 100, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('classes', 10, 'Data selection size.')
 flags.DEFINE_integer('batch_size', 50, 'Minibatch size.')
 flags.DEFINE_integer('select_size', 10000, 'Data selection size.')
@@ -96,20 +96,17 @@ def main(_):
   Y_test = np.squeeze(Y_test)
 
   with tf.Session() as sess:
-    # model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
-    # sess.run(tf.global_variables_initializer())
-    # model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
-    # acc = model.validate(test_images, test_classes, FLAGS.batch_size, 8)
-    # print(acc)
-    # new_images, new_classes = _select_data(DATA_DIR, sess, model, max_entropy)
-    # images = np.concatenate([images, new_images], 0)
-    # classes = np.concatenate([classes, new_classes], 0)
-
-    model = Cifar10CNN()
+    model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
     sess.run(tf.global_variables_initializer())
-    model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
-    acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
-    print('Test accuracy: {} %'.format(acc * 100))
+    model.optimize(images, classes, FLAGS.epochs, FLAGS.batch_size)
+    acc = model.validate(test_images, test_classes, FLAGS.batch_size, 1)
+    print(acc)
+
+    # model = Cifar10CNN()
+    # sess.run(tf.global_variables_initializer())
+    # model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
+    # acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
+    # print('Test accuracy: {} %'.format(acc * 100))
 
 
 if __name__ == '__main__':
