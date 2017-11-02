@@ -7,6 +7,7 @@ import urllib.request
 from tqdm import tqdm
 from download import maybe_download_and_extract
 from cifar10 import load_training_data, load_test_data
+from keras.datasets import cifar10
 from cifar10_bcnn2 import Cifar10BCNN
 from cifar10_cnn import Cifar10CNN
 
@@ -90,10 +91,7 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 
 def main(_):
-  images, classes, _ = load_training_data()
-  test_images, test_classes, _ = load_test_data()
-  test_images = test_images[:1000]
-  test_classes = test_classes[:1000]
+  (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
 
   with tf.Session() as sess:
     # model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
@@ -107,8 +105,8 @@ def main(_):
 
     model = Cifar10CNN(lr=0.1, max_grad_norm=5)
     sess.run(tf.global_variables_initializer())
-    model.optimize(sess, images, classes, FLAGS.epochs, FLAGS.batch_size)
-    acc = model.validate(sess, test_images, test_classes, FLAGS.batch_size)
+    model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
+    acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
     print('Test accuracy: {} %'.format(acc * 100))
 
 

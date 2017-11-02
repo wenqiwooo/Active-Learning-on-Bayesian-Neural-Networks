@@ -16,3 +16,8 @@ __pycache__/
 
 checkpoint/
 
+/cifar10/data/
+
+/cifar10/train/
+
+/cifar10/eval/
