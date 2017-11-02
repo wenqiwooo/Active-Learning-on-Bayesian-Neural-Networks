@@ -178,7 +178,7 @@ class Cifar10BCNN(object):
     for prob in probs:
       pred = np.argmax(prob, axis=1)
       acc += (pred == Y_test).sum()
-    return acc / len(X_test)
+    return acc / (len(X_test) * n_samples)
 
 
   def predict(self, X, batch_size):
