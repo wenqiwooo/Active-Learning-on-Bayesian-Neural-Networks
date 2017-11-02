@@ -92,6 +92,8 @@ def _select_data(data_dir, sess=None, model=None, f=None, initial=False):
 
 def main(_):
   (X_train, Y_train), (X_test, Y_test) = cifar10.load_data()
+  Y_train = np.squeeze(Y_train)
+  Y_test = np.squeeze(Y_test)
 
   with tf.Session() as sess:
     # model = Cifar10BCNN(FLAGS.epochs, len(images), FLAGS.batch_size)
