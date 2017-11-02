@@ -187,8 +187,8 @@ class MnistModel(object):
       self.inference.print_progress(info_dict)
 
   def validate(self, mnist, n_samples):
-    X_test = mnist.test.images
-    Y_test = mnist.test.labels
+    X_test = mnist.test.images[:1000]
+    Y_test = mnist.test.labels[:1000]
     probs = []
     for _ in range(n_samples):
       sw = self.qw.sample()
