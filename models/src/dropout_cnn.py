@@ -172,11 +172,6 @@ class BayesianCNN(object):
         print('Saved trained model at %s ' % model_path)
 
 if __name__ == '__main__':
-    if len(sys.argv) == 1 or sys.argv[1] not in ('test', 'train'):
-        print('Supply either train/evaluate as an argument to the script.')
-        print('e.g. python <script_name>.py train')
-        sys.exit()
-
     # the data, shuffled and split between train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -203,25 +198,41 @@ if __name__ == '__main__':
     m = BayesianCNN(keras.losses.kullback_leibler_divergence,
                     keras.optimizers.Adadelta())
 
-    if sys.argv[1] == 'train':
-        m.optimize(x_train, y_train)
+    # We initially train the model with only 200 inputs
+    init_x, init_y = x_train[:200], y_train[:200]
+    m.optimize(init_x, init_y)
 
-        # Saves model
-        if len(sys.argv) == 4:
-            save_dir, filename = sys.argv[2], sys.argv[3]
-            m.save_model(save_dir, filename)
-    else:
-        if len(sys.argv) < 4:
-            print('Please include filepath of saved model for test, and\
-                   directory to store predictive mean and variance')
-            sys.exit()
+    # Let the model actively learn on its own!
+    unobserved_x, unobserved_y = x_train[200:], y_train[200:]
 
-        filename = sys.argv[2]
-        m.load_model(filename)
-        loss, accuracy = m.evaluate(x_test, y_test)
+    count = 0
+    while count < 1000:
+        if count % 100 == 0:
+            print(f'Running active learning iteration {count}')
 
-        print(f'Loss: {loss}')
-        print(f'Accuracy: {accuracy}')
+        # Run evaluation on unobserved data by sampling 10 times
+        _, var = m.sample(unobserved_x)
 
-        # Gets the predictive mean and variance
-        mean, var = m.sample(x_test)
+        # Find the data that minimizes the sum of all variances
+        # Sum of mean-squared errors criterion (?)
+        # TODO: Would be faster if we select batches instead of one element
+        # at a time
+        idx = np.argmin(np.sum(var, axis=0))
+
+        # Add that to our training data
+        np.append(init_x, unobserved_x[idx])
+        np.append(init_y, unobserved_y[idx])
+
+        # Optimize the model again
+        m.optimize_batch(unobserved_x[idx], unobserved_y[idx])
+
+        # Remove from unobserved data
+        np.delete(unobserved_x, idx, 0)
+        np.delete(unobserved_y, idx, 0)
+
+        count += 1
+
+    # Evaluate our model now!
+    loss, accuracy = m.evaluate(x_test, y_test)
+    print(f'Loss: {loss}')
+    print(f'Accuracy: {accuracy}')
