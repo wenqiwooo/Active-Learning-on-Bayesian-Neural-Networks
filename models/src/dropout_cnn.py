@@ -195,7 +195,8 @@ def active_learn(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
         # Naive selection: just choosing ONE data point
         min_var = np.inf
         idx = None
-        for j in range(len(unobserved_x)):
+        for _ in range(10):
+            j = np.random.randint(low=0, high=len(unobserved_x))
             _, var = model.sample(np.delete(unobserved_x, j, axis=0))
 
             # TODO: I'm not sure if we should sum up the variance like that
@@ -205,8 +206,8 @@ def active_learn(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
                 idx = j
 
         # Add that to our training data
-        init_x = np.append(init_x, np.take(unobserved_x, idx, axis=0), axis=0)
-        init_y = np.append(init_y, np.take(unobserved_y, idx, axis=0), axis=0)
+        init_x = np.append(init_x, np.take(unobserved_x, [idx], axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, [idx], axis=0), axis=0)
 
         print(f'Total data used so far: {init_x.shape[0]}')
 
