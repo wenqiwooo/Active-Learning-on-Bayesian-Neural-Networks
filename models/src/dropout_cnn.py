@@ -248,7 +248,7 @@ def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=10
         mse_sum_vector = []
 
         # Sample model no_of_rows times to get variance vector, then return top K variances
-        for i in range(no_of_rows):
+        for _ in range(no_of_rows):
             _, var = model.sample(unobserved_x)
             s = sum_of_mean_square_errors(var)
             mse_sum_vector.append(s)
