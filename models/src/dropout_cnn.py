@@ -236,7 +236,7 @@ def entropy(X, k=1):
             + np.log(volume_unit_ball) + psi(n) - psi(k))
 
 
-def active_learn_rsme(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
+def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
     """
     Starts an active learning process to train the model using the mean squared
     error criterion, a.k.a our variance.
@@ -244,31 +244,30 @@ def active_learn_rsme(model, init_x, init_y, unobserved_x, unobserved_y, iters=1
     for i in range(iters):
         print(f'Running active learning iteration {i+1}')
 
-        # Naive selection: just choosing ONE data point
-        min_var = np.inf
-        idx = None
-        for _ in range(10):
-            j = np.random.randint(low=0, high=len(unobserved_x))
-            _, var = model.sample(np.delete(unobserved_x, j, axis=0))
+        no_of_rows = len(unobserved_x)
+        mse_sum_vector = []
 
-            # TODO: I'm not sure if we should sum up the variance like that
+        # Sample model no_of_rows times to get variance vector, then return top K variances
+        for i in range(no_of_rows):
+            _, var = model.sample(unobserved_x)
             s = sum_of_mean_square_errors(var)
-            if s < min_var:
-                min_var = s
-                idx = j
+            mse_sum_vector.append(s)
 
-        # Add that to our training data
-        init_x = np.append(init_x, np.take(unobserved_x, [idx], axis=0), axis=0)
-        init_y = np.append(init_y, np.take(unobserved_y, [idx], axis=0), axis=0)
+        top_k = np.argsort(mse_sum_vector)[::-1][:k]
 
-        print(f'Total data used so far: {init_x.shape[0]}')
+        for idx in top_k:
+            # Add that to our training data
+            init_x = np.append(init_x, np.take(unobserved_x, [idx], axis=0), axis=0)
+            init_y = np.append(init_y, np.take(unobserved_y, [idx], axis=0), axis=0)
 
-        # Optimize the model again
-        model.optimize(init_x, init_y)
+            print(f'Total data used so far: {init_x.shape[0]}')
 
-        # Remove from unobserved data
-        unobserved_x = np.delete(unobserved_x, idx, 0)
-        unobserved_y = np.delete(unobserved_y, idx, 0)
+            # Optimize the model again
+            model.optimize(init_x, init_y)
+
+            # Remove from unobserved data
+            unobserved_x = np.delete(unobserved_x, idx, 0)
+            unobserved_y = np.delete(unobserved_y, idx, 0)
 
 
 def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
@@ -353,7 +352,7 @@ def main():
 
     # Let the model actively learn on its own
     unobserved_x, unobserved_y = x_train[50:530], y_train[50:530]
-    active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
+    active_learn_mse(m, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10)
 
     # Evaluate our model against test set!
     loss, accuracy = m.evaluate(x_test, y_test)
