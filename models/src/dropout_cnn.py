@@ -3,6 +3,11 @@ import sys
 import datetime
 
 import numpy as np
+from scipy.special import gamma,psi
+from scipy.linalg import det
+from numpy import pi
+from sklearn.neighbors import NearestNeighbors
+
 import keras
 from keras.datasets import mnist
 from keras.models import Sequential, load_model
@@ -185,9 +190,56 @@ def sum_of_mean_square_errors(var):
     return np.sum(var)
 
 
-def active_learn(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
+def nearest_distances(X, k=1):
+    '''
+    X = array(N,M)
+    N = number of points
+    M = number of dimensions
+    returns the distance to the kth nearest neighbor for every point in X
+    '''
+    knn = NearestNeighbors(n_neighbors=k)
+    knn.fit(X)
+    d, _ = knn.kneighbors(X) # the first nearest neighbor is itself
+    return d[:, -1] # returns the distance to the kth nearest neighbor
+
+
+def entropy(X, k=1):
+    ''' Returns the entropy of the X.
+    Parameters
+    ===========
+    X : array-like, shape (n_samples, n_features)
+        The data the entropy of which is computed
+    k : int, optional
+        number of nearest neighbors for density estimation
+    Notes
+    ======
+    Kozachenko, L. F. & Leonenko, N. N. 1987 Sample estimate of entropy
+    of a random vector. Probl. Inf. Transm. 23, 95-101.
+    See also: Evans, D. 2008 A computationally efficient estimator for
+    mutual information, Proc. R. Soc. A 464 (2093), 1203-1215.
+    and:
+    Kraskov A, Stogbauer H, Grassberger P. (2004). Estimating mutual
+    information. Phys Rev E 69(6 Pt 2):066138.
+    '''
+
+    # Distance to kth nearest neighbor
+    r = nearest_distances(X, k) # squared distances
+    n, d = X.shape
+    volume_unit_ball = (pi**(.5*d)) / gamma(.5*d + 1)
+    '''
+    F. Perez-Cruz, (2008). Estimation of Information Theoretic Measures
+    for Continuous Random Variables. Advances in Neural Information
+    Processing Systems 21 (NIPS). Vancouver (Canada), December.
+    return d*mean(log(r))+log(volume_unit_ball)+log(n-1)-log(k)
+    '''
+    return (d*np.mean(np.log(r + np.finfo(X.dtype).eps))
+            + np.log(volume_unit_ball) + psi(n) - psi(k))
+
+
+def active_learn_rsme(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
     """
-    Starts an active learning process to train the model
+    Starts an active learning process to train the model using the mean squared
+    error criterion, a.k.a our variance.
     """
     for i in range(iters):
         print(f'Running active learning iteration {i+1}')
@@ -218,6 +270,55 @@ def active_learn(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
         unobserved_x = np.delete(unobserved_x, idx, 0)
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
+
+def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
+    """
+    Starts an active learning process to train the model using the maximum
+    mutual information criterion.
+    """
+    for i in range(iters):
+        print(f'Running active learning iteration {i+1}')
+
+        max_mi = -np.inf
+        idx = None
+
+        # Reduce the sampling of points to just 10 samples
+        for _ in range(10):
+            # Naive selection: just choosing ONE data point
+            j = np.random.randint(low=0, high=len(unobserved_x))
+            pred = model.predict(np.take(unobserved_x, [0], axis=0))
+
+            # Add prediction to observed data
+            o_y = np.append(init_y, pred, axis=0)
+
+            # Remove from unobserved data
+            u_x = np.delete(unobserved_x, j, 0)
+
+            # Calculate mutual information
+            unobserved_preds = model.predict(u_x)
+
+            print(o_y.shape)
+            print(unobserved_preds.shape)
+
+            # TODO: This part is not done yet.
+            mi = entropy(unobserved_preds)
+
+            if mi > max_mi:
+                idx = j
+                max_mi = mi
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Add best data point to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, [idx], axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, [idx], axis=0), axis=0)
+
+        # Optimize the model again
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, idx, 0)
+        unobserved_y = np.delete(unobserved_y, idx, 0)
 
 def main():
     # the data, shuffled and split between train and test sets
@@ -252,7 +353,7 @@ def main():
 
     # Let the model actively learn on its own
     unobserved_x, unobserved_y = x_train[50:530], y_train[50:530]
-    active_learn(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
+    active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
 
     # Evaluate our model against test set!
     loss, accuracy = m.evaluate(x_test, y_test)
