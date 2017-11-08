@@ -15,7 +15,7 @@ def main(_):
   with tf.Session() as sess:
     sess.run(tf.global_variables_initializer())
     model.optimize(mnist)
-    acc = model.validate(mnist, 500)
+    acc = model.validate(mnist, 100)
     # model.optimize(sess, mnist)
     # acc = model.validate(sess, mnist)
     print(acc)
