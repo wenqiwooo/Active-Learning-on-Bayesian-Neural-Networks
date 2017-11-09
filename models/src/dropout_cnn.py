@@ -271,6 +271,38 @@ def active_learn_rsme(model, init_x, init_y, unobserved_x, unobserved_y, iters=1
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
 
+def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+    """
+    Starts an active learning process to train the model using the maximum 
+    entropy criterion
+    """
+
+    for i in range(iters):
+        print(f'Running active learning iterations {i+1}')
+        pred = np.zeros(unobserved_y.shape)
+        idx = None
+
+        for _ in range(10):
+            pred += model.predict(unobserved_x)
+
+        pred /= iters
+        entropy = np.sum(-1 * pred * np.log(pred + 1e-9), axis=1)
+        idx = np.argpartition(entropy, -k)[-k:]
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Add best data point to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, idx, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, idx, axis=0), axis=0)
+
+        # Optimize the model again
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, idx, 0)
+        unobserved_y = np.delete(unobserved_y, idx, 0)
+
+
 def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
     """
     Starts an active learning process to train the model using the maximum
@@ -353,7 +385,8 @@ def main():
 
     # Let the model actively learn on its own
     unobserved_x, unobserved_y = x_train[50:530], y_train[50:530]
-    active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
+    # active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
+    active_learn_max_entropy(m, init_x, init_y, unobserved_x, unobserved_y, iters=30, k=1)
 
     # Evaluate our model against test set!
     loss, accuracy = m.evaluate(x_test, y_test)
