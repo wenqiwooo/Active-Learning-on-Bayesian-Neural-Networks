@@ -38,23 +38,19 @@ class Cifar10BCNN(object):
 
   def setup_system(self):
     with tf.variable_scope('bcnn'):
-      self.filter1_size = 3 * 3 * 3 * 64
-      self.filter1 = Normal(loc=tf.zeros(self.filter1_size), scale=tf.ones(self.filter1_size))
+      self.filter1_shape = (5, 5, 3, 64)
+      self.filter1 = Normal(loc=tf.zeros(self.filter1_shape), scale=tf.ones(self.filter1_shape))
       self.bias1 = Normal(loc=tf.zeros(64), scale=tf.ones(64))
 
-      kernel1 = tf.reshape(self.filter1, (3, 3, 3, 64))
-
-      conv1 = tf.nn.bias_add(tf.nn.conv2d(self.x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), self.bias1)
+      conv1 = tf.nn.bias_add(tf.nn.conv2d(self.x, self.filter1, (1, 1, 1, 1), 'SAME', name='conv1'), self.bias1)
       conv1 = tf.nn.relu(conv1)
       maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
 
-      self.filter2_size = 3 * 3 * 64 * 128
-      self.filter2 = Normal(loc=tf.zeros(self.filter2_size), scale=tf.ones(self.filter2_size))
+      self.filter2_shape = (5, 5, 64, 128)
+      self.filter2 = Normal(loc=tf.zeros(self.filter2_shape), scale=tf.ones(self.filter2_shape))
       self.bias2 = Normal(loc=tf.zeros(128), scale=tf.ones(128))
 
-      kernel2 = tf.reshape(self.filter2, (3, 3, 64, 128))
-
-      conv2 = tf.nn.bias_add(tf.nn.conv2d(maxpool1, kernel2, (1, 1, 1, 1), 'SAME', name='conv2'), self.bias2)
+      conv2 = tf.nn.bias_add(tf.nn.conv2d(maxpool1, self.filter2, (1, 1, 1, 1), 'SAME', name='conv2'), self.bias2)
       conv2 = tf.nn.relu(conv2)
       maxpool2 = tf.nn.max_pool(conv2, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool2')
 
@@ -70,8 +66,8 @@ class Cifar10BCNN(object):
   def setup_variables(self):
     with tf.variable_scope('variables'):
       self.qf1 = Normal(
-          loc=tf.Variable(tf.random_normal([self.filter1_size])),
-          scale=tf.nn.softplus(tf.Variable(tf.random_normal([self.filter1_size]))),
+          loc=tf.Variable(tf.random_normal(self.filter1_shape)),
+          scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.filter1_shape))),
       )
       self.qb1 = Normal(
           loc=tf.Variable(tf.random_normal([64])),
@@ -79,8 +75,8 @@ class Cifar10BCNN(object):
       )
 
       self.qf2 = Normal(
-          loc=tf.Variable(tf.random_normal([self.filter2_size])),
-          scale=tf.nn.softplus(tf.Variable(tf.random_normal([self.filter2_size]))),
+          loc=tf.Variable(tf.random_normal(self.filter2_shape)),
+          scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.filter2_shape))),
       )
       self.qb2 = Normal(
           loc=tf.Variable(tf.random_normal([128])),
@@ -111,18 +107,19 @@ class Cifar10BCNN(object):
         self.categorical: self.y
       }
       self.inference = ed.KLqp(latent_vars, data=data)
-      self.inference.initialize()
+      self.inference.initialize(
+          scale={self.categorical: 100})
 
 
   def optimize(self, session, x, y, epochs, batch_size):
     print('Optimizing %s training examples' % x.shape[0])
     pbar = tqdm(total=epochs)
-    for i in tqdm(range(1, epochs + 1)):
+    for i in range(1, epochs + 1):
       epoch_loss = 0
       for batch_x, batch_y in mini_batch(x, y, shuffle=True, batch_size=batch_size):
         epoch_loss += self.optimize_batch(batch_x, batch_y)
       pbar.update()
-      pbar.set_postfix(loss=epoch_loss / len(x), refresh=False)  
+      pbar.set_postfix(loss=epoch_loss/len(x), refresh=False)  
     pbar.close() 
 
 
@@ -131,23 +128,26 @@ class Cifar10BCNN(object):
       self.x: batch_x,
       self.y: batch_y,
     }
-    info = self.inference.update(feed_dict=feed_dict)
-    return info['loss']
+    info_dict = self.inference.update(feed_dict=feed_dict)
+    return info_dict['loss']
 
 
   def validate(self, sess, x, y, batch_size, classes, predicts):
-    pred = np.zeros((y.shape[0], classes))
+    accuracies = []
     for i in range(predicts):
-      pred += self.predict(sess, x, batch_size)
-    pred_results = np.squeeze(np.argmax(pred, axis=1))
-    return np.mean(pred_results == y)
+      result = self.predict(sess, x, batch_size)
+      pred = np.argmax(result, axis=1)
+      acc = np.mean(pred == y) * 100
+      accuracies.append(acc)
+    return accuracies
 
 
   def predict(self, sess, x, batch_size):
     predictions = []
     pbar = tqdm(total=len(x) // batch_size + 1)
+    session = ed.get_session()
     for batch_x in mini_batch(x, shuffle=False, batch_size=batch_size):
-      predicted_probs = sess.run(self.predict_batch(),
+      predicted_probs = session.run(self.predict_batch(),
           feed_dict={
             self.x: batch_x
           })
@@ -158,13 +158,13 @@ class Cifar10BCNN(object):
 
 
   def predict_batch(self):
-    kernel1 = tf.reshape(self.qf1.sample(), (3, 3, 3, 64))
+    kernel1 = self.qf1.sample()
     bias1 = self.qb1.sample()
     conv1 = tf.nn.bias_add(tf.nn.conv2d(self.x, kernel1, (1, 1, 1, 1), 'SAME', name='conv1'), bias1)
     conv1 = tf.nn.relu(conv1)
     maxpool1 = tf.nn.max_pool(conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
 
-    kernel2 = tf.reshape(self.qf2.sample(), (3, 3, 64, 128))
+    kernel2 = self.qf2.sample()
     bias2 = self.qb2.sample()
 
     conv2 = tf.nn.bias_add(tf.nn.conv2d(maxpool1, kernel2, (1, 1, 1, 1), 'SAME', name='conv2'), bias2)
