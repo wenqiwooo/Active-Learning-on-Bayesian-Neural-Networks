@@ -157,15 +157,13 @@ class BayesianDropout(object):
       acc += (pred == Y_test).sum()
     return acc / (len(X_test) * n_samples)
 
-  def predict(self, X, batch_size):
-    predictions = []
-    pbar = tqdm(total=len(x)//batch_size+1)
-    for X_batch in mini_batch(batch_size, X):
-      pred = self.realize_network(X_batch).eval()
-      predictions.append(pred)
-      pbar.update()
-    pbar.close()
-    return np.array(predictions)
+  def predict(self, X, batch_size, n_samples=10):
+    probs = np.zeros((len(X), 10), np.float32)
+    X = tf.convert_to_tensor(X, np.float32)
+    for i in tqdm(range(n_samples)):
+      prob = self.realize_network(X).eval()
+      probs += prob
+    return probs / n_samples
 
   def realize_network(self, X):
     sd1 = self.qd1.sample()
@@ -176,18 +174,6 @@ class BayesianDropout(object):
         self.f1, self.b1, self.f2, self.b2,
         self.fc_w1, self.fc_b1, self.fc_w2, self.fc_b2, self.fc_w3, self.fc_b3,
         sd1, sd2, sd3, sd4, X))
-
-
-    # self.conv1 = nn.Conv2d(3, 6, 5)
-    # self.d1 = nn.Dropout(p=0.2)
-    # self.conv2 = nn.Conv2d(6, 16, 5)
-    # self.d2 = nn.Dropout(p=0.2)
-    # self.fc1   = nn.Linear(16*5*5, 120)
-    # self.d3 = nn.Dropout(p=0.2)
-    # self.fc2   = nn.Linear(120, 84)
-    # self.d4 = nn.Dropout(p=0.2)
-    # self.fc3   = nn.Linear(84, 10)    
-
 
 
 def BCNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import sys
 import numpy as np
 import tensorflow as tf
@@ -98,7 +99,12 @@ def main(_):
   with tf.Session() as sess:
     model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
     saver = tf.train.Saver()
-    sess.run(tf.global_variables_initializer())
+    try: 
+      print('Restoring from checkpoint')
+      saver.restore(sess, '../checkpoint/beta_dropout.ckpt')
+    except Exception:
+      print('Initializing new variables')
+      sess.run(tf.global_variables_initializer())
     model.optimize(
         X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
         X_test, Y_test, 10, saver=saver)
