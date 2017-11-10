@@ -97,19 +97,19 @@ def main(_):
 
   # saver = tf.train.Saver()
   with tf.Session() as sess:
-    model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
-    sess.run(tf.global_variables_initializer())
-    model.optimize(
-        X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
-        X_test, Y_test, 10, sess=sess)
-    #acc = model.validate(X_test, Y_test, FLAGS.batch_size, 5)
-    print(acc)
-
-    # model = Cifar10CNN()
+    # model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
     # sess.run(tf.global_variables_initializer())
-    # model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
-    # acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
-    # print('Test accuracy: {} %'.format(acc * 100))
+    # model.optimize(
+    #     X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
+    #     X_test, Y_test, 10, sess=sess)
+    # acc = model.validate(X_test, Y_test, FLAGS.batch_size, 5)
+    # print(acc)
+
+    model = Cifar10CNN()
+    sess.run(tf.global_variables_initializer())
+    model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
+    acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
+    print('Test accuracy: {} %'.format(acc * 100))
 
 
 if __name__ == '__main__':

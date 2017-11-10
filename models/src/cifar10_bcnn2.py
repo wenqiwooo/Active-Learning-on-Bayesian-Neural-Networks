@@ -121,7 +121,7 @@ class BayesianDropout(object):
       X_test=None, Y_test=None, n_samples=10, sess=None):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
-      print('Optimizing for epoch {}'.format(epochs+1))
+      print('Optimizing for epoch {}'.format(i+1))
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
         # sess = ed.get_session()
         sess.run(self.train, feed_dict={
