@@ -1,5 +1,7 @@
 venv/
 
+
+
 glove.6B.100d.txt
 
 cifar-10-batches-py/
