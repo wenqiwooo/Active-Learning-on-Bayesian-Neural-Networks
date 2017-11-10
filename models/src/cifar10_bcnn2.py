@@ -125,13 +125,13 @@ class BayesianDropout(object):
       X_test=None, Y_test=None, n_samples=10, saver=None):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
-      print('Optimizing for epoch {}'.format(i+1))
+      print('Optimizing for epoch {}'.format(i))
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
         info_dict = self.inference.update(feed_dict={
             self.x: X_batch,
             self.y: Y_batch
           })
-        self.inference.print_progress(info_dict)
+        print(info_dict)
       
       if saver is not None:
         sess = ed.get_session()
