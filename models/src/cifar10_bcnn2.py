@@ -334,7 +334,7 @@ class Cifar10BCNN(object):
           })
         self.inference.print_progress(info_dict)
       if saver is not None:
-        ed.get_session()
+        sess = ed.get_session()
         saver.save(sess, '../checkpoint/beta_dropout.ckpt')
       # if X_test is not None and Y_test is not None:
       #   acc = self.validate(X_test, Y_test, batch_size, n_samples)

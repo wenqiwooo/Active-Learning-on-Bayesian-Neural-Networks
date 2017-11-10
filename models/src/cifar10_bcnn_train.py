@@ -101,7 +101,7 @@ def main(_):
     sess.run(tf.global_variables_initializer())
     model.optimize(
         X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
-        X_test, Y_test, 10, sess=sess, saver=saver)
+        X_test, Y_test, 10, saver=saver)
 
     # model = Cifar10CNN()
     # sess.run(tf.global_variables_initializer())
