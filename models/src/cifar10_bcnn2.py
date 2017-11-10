@@ -104,12 +104,6 @@ class BayesianDropout(object):
         self.fc_w1, self.fc_b1, self.fc_w2, self.fc_b2, self.fc_w3, self.fc_b3,
         self.d1, self.d2, self.d3, self.d4, self.x)
 
-    # self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-    #     labels=self.y, logits=self.nn)
-
-    # self.train = tf.train.AdamOptimizer(
-    #     learning_rate=1e-3).minimize(self.loss, global_step=self.global_step)
-
     self.categorical = Categorical(self.nn)
 
     self.inference = ed.KLqp({
@@ -119,7 +113,10 @@ class BayesianDropout(object):
         self.d4: self.qd4
       }, data={self.categorical: self.y})
 
-    self.optimizer = tf.train.AdamOptimizer(learning_rate=1e-3)
+    self.lr = tf.train.exponential_decay(
+        1e-3, self.global_step, 100000, 0.96, staircase=True)
+
+    self.optimizer = tf.train.AdamOptimizer(self.lr)
 
     iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
     self.inference.initialize(
