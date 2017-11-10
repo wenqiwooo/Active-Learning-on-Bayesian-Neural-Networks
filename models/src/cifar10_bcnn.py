@@ -22,6 +22,7 @@ def mini_batch(x, y=None, shuffle=True, batch_size=128):
       yield batch_x
 
 
+
 class Cifar10BCNN(object):
   def __init__(self):
     self.setup_placeholders()

@@ -8,14 +8,14 @@ from tqdm import tqdm
 from download import maybe_download_and_extract
 from cifar10 import load_training_data, load_test_data
 from keras.datasets import cifar10
-from cifar10_bcnn2 import Cifar10BCNN
+from cifar10_bcnn2 import Cifar10BCNN, BayesianDropout
 from cifar10_cnn import Cifar10CNN
 
 
 flags = tf.app.flags
 FLAGS = flags.FLAGS
 flags.DEFINE_integer('fetches', 10, 'Number of data fetches.')
-flags.DEFINE_integer('epochs', 1000, 'Number of epochs for each dataset.')
+flags.DEFINE_integer('epochs', 50, 'Number of epochs for each dataset.')
 flags.DEFINE_integer('classes', 10, 'Data selection size.')
 flags.DEFINE_integer('batch_size', 50, 'Minibatch size.')
 flags.DEFINE_integer('select_size', 10000, 'Data selection size.')
@@ -95,13 +95,14 @@ def main(_):
   Y_train = np.squeeze(Y_train)
   Y_test = np.squeeze(Y_test)
 
-  saver = tf.train.Saver()
+  # saver = tf.train.Saver()
   with tf.Session() as sess:
-    model = Cifar10BCNN(FLAGS.epochs, len(X_train), FLAGS.batch_size)
+    model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
     sess.run(tf.global_variables_initializer())
     model.optimize(
-        X_train, Y_train, FLAGS.epochs, FLAGS.batch_size, saver=saver)
-    acc = model.validate(X_test, Y_test, FLAGS.batch_size, 5)
+        X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
+        X_test, Y_test, 10)
+    #acc = model.validate(X_test, Y_test, FLAGS.batch_size, 5)
     print(acc)
 
     # model = Cifar10CNN()
