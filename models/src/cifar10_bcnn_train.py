@@ -101,7 +101,7 @@ def main(_):
     sess.run(tf.global_variables_initializer())
     model.optimize(
         X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
-        X_test, Y_test, 10)
+        X_test, Y_test, 10, sess=sess)
     #acc = model.validate(X_test, Y_test, FLAGS.batch_size, 5)
     print(acc)
 

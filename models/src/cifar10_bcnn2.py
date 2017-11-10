@@ -97,7 +97,7 @@ class BayesianDropout(object):
         self.d1, self.d2, self.d3, self.d4, self.x)
 
     self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
-        labels=self.y, logits=self.x)
+        labels=self.y, logits=self.nn)
 
     self.train = tf.train.AdamOptimizer(
         learning_rate=1e-3).minimize(self.loss, global_step=self.global_step)
@@ -118,11 +118,12 @@ class BayesianDropout(object):
     #     n_iter=iterations, optimizer=self.optimizer, global_step=self.global_step)
 
   def optimize(self, X, Y, epochs, batch_size, 
-      X_test=None, Y_test=None, n_samples=10):
+      X_test=None, Y_test=None, n_samples=10, sess=None):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
+      print('Optimizing for epoch {}'.format(epochs+1))
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
-        sess = ed.get_session()
+        # sess = ed.get_session()
         sess.run(self.train, feed_dict={
             self.x: X_batch,
             self.y: Y_batch
