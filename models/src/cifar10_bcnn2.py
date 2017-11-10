@@ -119,8 +119,7 @@ class BayesianDropout(object):
     self.optimizer = tf.train.AdamOptimizer(self.lr)
 
     iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
-    self.inference.initialize(
-        n_iter=iterations, optimizer=self.optimizer, global_step=self.global_step)
+    self.inference.initialize(optimizer=self.optimizer, global_step=self.global_step)
 
   def optimize(self, X, Y, epochs, batch_size, 
       X_test=None, Y_test=None, n_samples=10, saver=None):
