@@ -107,8 +107,9 @@ def main(_):
 
     model = Cifar10CNN()
     sess.run(tf.global_variables_initializer())
-    model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size)
-    acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
+    model.optimize(sess, X_train, Y_train, FLAGS.epochs, FLAGS.batch_size, 
+        X_test, Y_test)
+    #acc = model.validate(sess, X_test, Y_test, FLAGS.batch_size)
     print('Test accuracy: {} %'.format(acc * 100))
 
 

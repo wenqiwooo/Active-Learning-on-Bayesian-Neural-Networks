@@ -100,7 +100,7 @@ class Cifar10CNN(object):
     self.train = tf.train.RMSPropOptimizer(
         learning_rate=1e-4).minimize(self.loss, global_step=self.global_step)
 
-  def optimize(self, sess, X, Y, epochs, batch_size):
+  def optimize(self, sess, X, Y, epochs, batch_size, X_test=None, Y_test=None):
     for epoch in range(epochs):
       print('Optimizing epoch {}'.format(epoch+1))
       epoch_loss = 0.
@@ -116,6 +116,9 @@ class Cifar10CNN(object):
         epoch_loss += loss
       pbar.close()
       print('Loss: {}'.format(epoch_loss))
+      if X_test is not None and Y_test is not None:
+        score = self.validate(sess, X_test, Y_test, batch_size)
+        print('Validation score: {}'.format(score))
 
   def validate(self, sess, X_test, Y_test, batch_size):
     score = 0
