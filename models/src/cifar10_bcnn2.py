@@ -114,7 +114,7 @@ class BayesianDropout(object):
       }, data={self.categorical: self.y})
 
     self.lr = tf.train.exponential_decay(
-        5e-7, self.global_step, 30000, 0.96, staircase=True)
+        1e-7, self.global_step, 20000, 0.96, staircase=True)
 
     self.optimizer = tf.train.AdamOptimizer(self.lr)
 
@@ -127,13 +127,15 @@ class BayesianDropout(object):
     for i in range(1, epochs+1):
       print('Optimizing for epoch {}'.format(i))
       loss = 0
+      steps = None
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
         info_dict = self.inference.update(feed_dict={
             self.x: X_batch,
             self.y: Y_batch
           })
         loss += info_dict['loss']
-      print('Loss: {}\n'.format(loss))
+        steps = info_dict['t']
+      print('Loss: {}   Steps: {}'.format(loss, steps))
 
       if saver is not None:
         sess = ed.get_session()
