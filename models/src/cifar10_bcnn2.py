@@ -126,20 +126,22 @@ class BayesianDropout(object):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
       print('Optimizing for epoch {}'.format(i))
+      loss = 0
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
         info_dict = self.inference.update(feed_dict={
             self.x: X_batch,
             self.y: Y_batch
           })
-        print(info_dict)
-      
+        loss += info_dict['loss']
+      print('Loss: {}'.format(loss))
+
       if saver is not None:
         sess = ed.get_session()
         saver.save(sess, '../checkpoint/beta_dropout.ckpt')
 
       if X_test is not None and Y_test is not None:
         acc = self.validate(X_test[:1000], Y_test[:1000], batch_size, n_samples)
-        print(acc)
+        print('Validation: {}'.format(acc))
 
   def validate(self, X_test, Y_test, batch_size, n_samples):
     X = tf.convert_to_tensor(X_test, np.float32)
