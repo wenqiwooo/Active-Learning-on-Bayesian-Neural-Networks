@@ -30,7 +30,7 @@ def CNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   conv1 = tf.nn.relu(conv1)
   maxpool1 = tf.nn.max_pool(
       conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
-  maxpool1 = tf.nn.dropout(0.2)
+  maxpool1 = tf.nn.dropout(maxpool1, 0.2)
   # 16 x 16 x 32
 
   conv2 = tf.nn.bias_add(
@@ -38,7 +38,7 @@ def CNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   conv2 = tf.nn.relu(conv2)
   maxpool2 = tf.nn.max_pool(
       conv2, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool2')
-  maxpool2 = tf.nn.dropout(0.2)
+  maxpool2 = tf.nn.dropout(maxpool2, 0.2)
   # 8 x 8 x 32
 
   conv3 = tf.nn.bias_add(
@@ -46,13 +46,13 @@ def CNN(f1, b1, f2, b2, f3, b3, fc_w1, fc_b1, fc_w2, fc_b2, X):
   conv3 = tf.nn.relu(conv3)
   maxpool3 = tf.nn.max_pool(
       conv3, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool3')
-  maxpool3 = tf.nn.dropout(0.2)
+  maxpool3 = tf.nn.dropout(maxpool3, 0.2)
   # 4 x 4 x 64
 
   conv_out = tf.reshape(maxpool3, (-1, 1024))
   fc1 = tf.matmul(conv_out, fc_w1) + fc_b1
   fc1 = tf.nn.relu(fc1)
-  fc1 = tf.nn.dropout(0.2)
+  fc1 = tf.nn.dropout(fc1, 0.2)
 
   fc2 = tf.matmul(fc1, fc_w2) + fc_b2
 
