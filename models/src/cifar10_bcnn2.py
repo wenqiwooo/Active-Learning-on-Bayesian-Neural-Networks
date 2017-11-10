@@ -324,7 +324,7 @@ class Cifar10BCNN(object):
 
 
   def optimize(self, X, Y, epochs, batch_size, 
-      X_test=None, Y_test=None, n_samples=10, saver=saver):
+      X_test=None, Y_test=None, n_samples=10, saver=None):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
