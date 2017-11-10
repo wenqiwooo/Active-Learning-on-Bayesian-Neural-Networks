@@ -36,14 +36,14 @@ def DropoutCNN(f1, b1, f2, b2, fc_w1, fc_b1, fc_w2, fc_b2, fc_w3, fc_b3,
       tf.nn.conv2d(conv1, f2, (1, 1, 1, 1), 'SAME', name='conv2'), b2)
   conv2 = tf.nn.max_pool(
       conv2, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool2')
-  conv2 = tf.nn.dropout(tf.nn.relu(conv2), 0.8)
+  conv2 = tf.nn.dropout(tf.nn.relu(conv2), d2)
 
   fc1 = tf.reshape(conv2, (-1, 16*8*8))
   fc1 = tf.matmul(fc1, fc_w1) + fc_b1
-  fc1 = tf.nn.dropout(tf.nn.relu(fc1), 0.8)
+  fc1 = tf.nn.dropout(tf.nn.relu(fc1), d3)
 
   fc2 = tf.matmul(fc1, fc_w2) + fc_b2
-  fc2 = tf.nn.dropout(tf.nn.relu(fc2), 0.8)
+  fc2 = tf.nn.dropout(tf.nn.relu(fc2), d4)
 
   fc3 = tf.matmul(fc2, fc_w3) + fc_b3
   return fc3
