@@ -96,31 +96,43 @@ class BayesianDropout(object):
         self.fc_w1, self.fc_b1, self.fc_w2, self.fc_b2, self.fc_w3, self.fc_b3,
         self.d1, self.d2, self.d3, self.d4, self.x)
 
-    self.categorical = Categorical(self.nn)
+    self.loss = tf.nn.sparse_softmax_cross_entropy_with_logits(
+        labels=self.y, logits=self.x)
 
-    self.inference = ed.KLqp({
-        self.d1: self.qd1,
-        self.d2: self.qd2,
-        self.d3: self.qd3,
-        self.d4: self.qd4
-      }, data={self.categorical: self.y})
+    self.train = tf.train.AdamOptimizer(
+        learning_rate=1e-3).minimize(self.loss, global_step=self.global_step)
 
-    self.optimizer = tf.train.AdamOptimizer(learning_rate=1e-3)
+    # self.categorical = Categorical(self.nn)
 
-    iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
-    self.inference.initialize(
-        n_iter=iterations, optimizer=self.optimizer, global_step=self.global_step)
+    # self.inference = ed.KLqp({
+    #     self.d1: self.qd1,
+    #     self.d2: self.qd2,
+    #     self.d3: self.qd3,
+    #     self.d4: self.qd4
+    #   }, data={self.categorical: self.y})
+
+    # self.optimizer = tf.train.AdamOptimizer(learning_rate=1e-3)
+
+    # iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
+    # self.inference.initialize(
+    #     n_iter=iterations, optimizer=self.optimizer, global_step=self.global_step)
 
   def optimize(self, X, Y, epochs, batch_size, 
       X_test=None, Y_test=None, n_samples=10):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
-        info_dict = self.inference.update(feed_dict={
+        sess = ed.get_session()
+        sess.run(self.train, feed_dict={
             self.x: X_batch,
             self.y: Y_batch
           })
-        self.inference.print_progress(info_dict)
+        # info_dict = self.inference.update(feed_dict={
+        #     self.x: X_batch,
+        #     self.y: Y_batch
+        #   })
+        # self.inference.print_progress(info_dict)
+
       if X_test is not None and Y_test is not None:
         acc = self.validate(X_test, Y_test, batch_size, n_samples)
         print(acc)
