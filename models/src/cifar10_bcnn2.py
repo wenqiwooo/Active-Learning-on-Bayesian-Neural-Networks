@@ -30,7 +30,7 @@ def DropoutCNN(f1, b1, f2, b2, fc_w1, fc_b1, fc_w2, fc_b2, fc_w3, fc_b3,
       tf.nn.conv2d(X, f1, (1, 1, 1, 1), 'SAME', name='conv1'), b1)
   conv1 = tf.nn.max_pool(
       conv1, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME', name='maxpool1')
-  conv1 = tf.nn.dropout(tf.nn.relu(conv1), 0.8)
+  conv1 = tf.nn.dropout(tf.nn.relu(conv1), d1)
 
   conv2 = tf.nn.bias_add(
       tf.nn.conv2d(conv1, f2, (1, 1, 1, 1), 'SAME', name='conv2'), b2)
@@ -61,15 +61,15 @@ class BayesianDropout(object):
     self.y = tf.placeholder(tf.int32, shape=(None,))
 
     # Prior distribution
-    self.d1 = Beta(2., 3.)
-    self.d2 = Beta(2., 3.)
-    self.d3 = Beta(2., 3.)
-    self.d4 = Beta(2., 3.)
+    self.d1 = Beta(8., 3.)
+    self.d2 = Beta(8., 3.)
+    self.d3 = Beta(8., 3.)
+    self.d4 = Beta(8., 3.)
 
-    self.qd1 = Beta(tf.Variable(2., tf.float32), tf.Variable(3., tf.float32))
-    self.qd2 = Beta(tf.Variable(2., tf.float32), tf.Variable(3., tf.float32))
-    self.qd3 = Beta(tf.Variable(2., tf.float32), tf.Variable(3., tf.float32))
-    self.qd4 = Beta(tf.Variable(2., tf.float32), tf.Variable(3., tf.float32))
+    self.qd1 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
+    self.qd2 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
+    self.qd3 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
+    self.qd4 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
 
     self.f1 = tf.get_variable('f1', (5, 5, 3, 6), dtype=tf.float32, 
         initializer=tf.contrib.layers.xavier_initializer())
