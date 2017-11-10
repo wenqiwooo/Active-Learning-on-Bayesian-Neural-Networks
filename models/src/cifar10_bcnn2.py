@@ -126,20 +126,20 @@ class BayesianDropout(object):
         n_iter=iterations, optimizer=self.optimizer, global_step=self.global_step)
 
   def optimize(self, X, Y, epochs, batch_size, 
-      X_test=None, Y_test=None, n_samples=10, sess=None):
+      X_test=None, Y_test=None, n_samples=10, saver=None):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
       print('Optimizing for epoch {}'.format(i+1))
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
-        # sess.run(self.train, feed_dict={
-        #     self.x: X_batch,
-        #     self.y: Y_batch
-        #   })
         info_dict = self.inference.update(feed_dict={
             self.x: X_batch,
             self.y: Y_batch
           })
         self.inference.print_progress(info_dict)
+      
+      if saver is not None:
+        sess = ed.get_session()
+        saver.save(sess, '../checkpoint/beta_dropout.ckpt')
 
       if X_test is not None and Y_test is not None:
         acc = self.validate(X_test[:1000], Y_test[:1000], batch_size, n_samples)
@@ -333,9 +333,6 @@ class Cifar10BCNN(object):
             self.y: Y_batch
           })
         self.inference.print_progress(info_dict)
-      if saver is not None:
-        sess = ed.get_session()
-        saver.save(sess, '../checkpoint/beta_dropout.ckpt')
       # if X_test is not None and Y_test is not None:
       #   acc = self.validate(X_test, Y_test, batch_size, n_samples)
       #   print(acc)

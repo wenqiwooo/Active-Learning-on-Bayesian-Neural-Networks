@@ -96,8 +96,8 @@ def main(_):
   Y_test = np.squeeze(Y_test)
 
   with tf.Session() as sess:
-    saver = tf.train.Saver()
     model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
+    saver = tf.train.Saver()
     sess.run(tf.global_variables_initializer())
     model.optimize(
         X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
