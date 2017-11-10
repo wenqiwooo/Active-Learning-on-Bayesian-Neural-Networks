@@ -114,7 +114,7 @@ class BayesianDropout(object):
       }, data={self.categorical: self.y})
 
     self.lr = tf.train.exponential_decay(
-        1e-3, self.global_step, 50000, 0.96, staircase=True)
+        1e-4, self.global_step, 50000, 0.96, staircase=True)
 
     self.optimizer = tf.train.AdamOptimizer(self.lr)
 
