@@ -114,7 +114,7 @@ class BayesianDropout(object):
       }, data={self.categorical: self.y})
 
     self.lr = tf.train.exponential_decay(
-        1e-6, self.global_step, 30000, 0.96, staircase=True)
+        5e-7, self.global_step, 30000, 0.96, staircase=True)
 
     self.optimizer = tf.train.AdamOptimizer(self.lr)
 
@@ -133,7 +133,7 @@ class BayesianDropout(object):
             self.y: Y_batch
           })
         loss += info_dict['loss']
-      print('Loss: {}'.format(loss))
+      print('Loss: {}\n'.format(loss))
 
       if saver is not None:
         sess = ed.get_session()
