@@ -66,10 +66,18 @@ class BayesianDropout(object):
     self.d3 = Beta(8., 3.)
     self.d4 = Beta(8., 3.)
 
-    self.qd1 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
-    self.qd2 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
-    self.qd3 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
-    self.qd4 = Beta(tf.Variable(8., tf.float32), tf.Variable(3., tf.float32))
+    self.qd1 = Beta(
+        tf.Variable(8., tf.float32, name='qd1_a'), 
+        tf.Variable(3., tf.float32, name='qd1_b'))
+    self.qd2 = Beta(
+        tf.Variable(8., tf.float32, name='qd2_a'), 
+        tf.Variable(3., tf.float32, name='qd2_b'))
+    self.qd3 = Beta(
+        tf.Variable(8., tf.float32, name='qd3_a'), 
+        tf.Variable(3., tf.float32, name='qd3_b'))
+    self.qd4 = Beta(
+        tf.Variable(8., tf.float32, name='qd4_a'), 
+        tf.Variable(3., tf.float32, name='qd4_b'))
 
     self.f1 = tf.get_variable('f1', (5, 5, 3, 6), dtype=tf.float32, 
         initializer=tf.contrib.layers.xavier_initializer())
@@ -316,7 +324,7 @@ class Cifar10BCNN(object):
 
 
   def optimize(self, X, Y, epochs, batch_size, 
-      X_test=None, Y_test=None, n_samples=10):
+      X_test=None, Y_test=None, n_samples=10, saver=saver):
     print('Optimizing {} training examples'.format(self.data_size))
     for i in range(1, epochs+1):
       for X_batch, Y_batch in mini_batch(batch_size, X, Y, shuffle=True):
@@ -325,9 +333,12 @@ class Cifar10BCNN(object):
             self.y: Y_batch
           })
         self.inference.print_progress(info_dict)
-      if X_test is not None and Y_test is not None:
-        acc = self.validate(X_test, Y_test, batch_size, n_samples)
-        print(acc)
+      if saver is not None:
+        ed.get_session()
+        saver.save(sess, '../checkpoint/beta_dropout.ckpt')
+      # if X_test is not None and Y_test is not None:
+      #   acc = self.validate(X_test, Y_test, batch_size, n_samples)
+      #   print(acc)
 
 
   def validate(self, X_test, Y_test, batch_size, n_samples):

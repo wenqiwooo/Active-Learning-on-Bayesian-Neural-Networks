@@ -95,15 +95,13 @@ def main(_):
   Y_train = np.squeeze(Y_train)
   Y_test = np.squeeze(Y_test)
 
-  # saver = tf.train.Saver()
+  saver = tf.train.Saver()
   with tf.Session() as sess:
     model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
     sess.run(tf.global_variables_initializer())
     model.optimize(
         X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
-        X_test, Y_test, 10, sess=sess)
-    # acc = model.validate(X_test, Y_test, FLAGS.batch_size, 5)
-    # print(acc)
+        X_test, Y_test, 10, sess=sess, saver=saver)
 
     # model = Cifar10CNN()
     # sess.run(tf.global_variables_initializer())
