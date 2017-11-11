@@ -34,24 +34,10 @@ class BayesianCNN(object):
         """
         Initializes the Keras model.
         """
+        self._loss = loss
+        self._optimizer = optimizer
+        self.init_model()
 
-        model = Sequential()
-        model.add(Conv2D(32, kernel_size=(3, 3),
-                         activation='relu',
-                         input_shape=input_shape))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-        model.add(Flatten())
-        model.add(Dense(128, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(num_classes, activation='softmax'))
-
-        model.compile(loss=loss,
-                      optimizer=optimizer,
-                      metrics=['accuracy'])
-
-        self._model = model
 
     def optimize(self, x, y, epochs=12, batch_size=32):
         """
@@ -175,6 +161,25 @@ class BayesianCNN(object):
         self._model.save(model_path)
         print('Saved trained model at %s ' % model_path)
 
+    def init_model(self):
+        model = Sequential()
+        model.add(Conv2D(32, kernel_size=(3, 3),
+                         activation='relu',
+                         input_shape=input_shape))
+        model.add(Conv2D(64, (3, 3), activation='relu'))
+        model.add(MaxPooling2D(pool_size=(2, 2)))
+        model.add(Dropout(0.25))
+        model.add(Flatten())
+        model.add(Dense(128, activation='relu'))
+        model.add(Dropout(0.5))
+        model.add(Dense(num_classes, activation='softmax'))
+
+        model.compile(loss=self._loss,
+                      optimizer=self._optimizer,
+                      metrics=['accuracy'])
+
+        self._model = model
+
 
 def sum_of_mean_square_errors(var):
     """
@@ -187,7 +192,7 @@ def sum_of_mean_square_errors(var):
     Returns: criterion value
     """
 
-    return np.sum(var)
+    return np.apply_along_axis(lambda x: np.trace(np.outer(x, x)), 1, var)
 
 
 def nearest_distances(X, k=1):
@@ -244,35 +249,29 @@ def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=10
     for i in range(iters):
         print(f'Running active learning iteration {i+1}')
 
-        no_of_rows = len(unobserved_x)
-        mse_sum_vector = []
+        _, var = model.sample(unobserved_x)
 
-        # Sample model no_of_rows times to get variance vector, then return top K variances
-        for _ in range(no_of_rows):
-            _, var = model.sample(unobserved_x)
-            s = sum_of_mean_square_errors(var)
-            mse_sum_vector.append(s)
+        # Get the data points with top k variance values
+        top_k = np.argpartition(sum_of_mean_square_errors(var), -k)[-k:]
 
-        top_k = np.argsort(mse_sum_vector)[::-1][:k]
+        # Add that to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, top_k, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, top_k, axis=0), axis=0)
 
-        for idx in top_k:
-            # Add that to our training data
-            init_x = np.append(init_x, np.take(unobserved_x, [idx], axis=0), axis=0)
-            init_y = np.append(init_y, np.take(unobserved_y, [idx], axis=0), axis=0)
+        print(f'Total data used so far: {init_x.shape[0]}')
 
-            print(f'Total data used so far: {init_x.shape[0]}')
+        # Optimize the model again
+        model.init_model()
+        model.optimize(init_x, init_y)
 
-            # Optimize the model again
-            model.optimize(init_x, init_y)
-
-            # Remove from unobserved data
-            unobserved_x = np.delete(unobserved_x, idx, 0)
-            unobserved_y = np.delete(unobserved_y, idx, 0)
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, top_k, 0)
+        unobserved_y = np.delete(unobserved_y, top_k, 0)
 
 
 def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
     """
-    Starts an active learning process to train the model using the maximum 
+    Starts an active learning process to train the model using the maximum
     entropy criterion
     """
 
@@ -383,11 +382,11 @@ def main():
     m.optimize(init_x, init_y)
 
     # Let the model actively learn on its own
-    unobserved_x, unobserved_y = x_train[50:530], y_train[50:530]
+    unobserved_x, unobserved_y = x_train[50:], y_train[50:]
 
     # active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
     # active_learn_max_entropy(m, init_x, init_y, unobserved_x, unobserved_y, iters=30, k=1)
-    active_learn_mse(m, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10)
+    active_learn_mse(m, init_x, init_y, unobserved_x, unobserved_y, iters=10, k=100)
 
     # Evaluate our model against test set!
     loss, accuracy = m.evaluate(x_test, y_test)
