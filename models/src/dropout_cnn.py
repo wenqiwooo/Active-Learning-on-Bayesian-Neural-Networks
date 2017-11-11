@@ -241,6 +241,34 @@ def entropy(X, k=1):
             + np.log(volume_unit_ball) + psi(n) - psi(k))
 
 
+def active_learn_random(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+    """
+    Starts an active learning process to train the model using the mean squared
+    error criterion, a.k.a our variance.
+    """
+    for i in range(iters):
+        print(f'Running active learning iteration {i+1}')
+
+        _, var = model.sample(unobserved_x)
+
+        # Get the data points with top k variance values
+        idx = np.random.choice(len(unobserved_x), k, replace=False)
+
+        # Add that to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, idx, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, idx, axis=0), axis=0)
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Optimize the model again
+        model.init_model()
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, idx, 0)
+        unobserved_y = np.delete(unobserved_y, idx, 0)
+
+
 def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
     """
     Starts an active learning process to train the model using the mean squared
@@ -294,6 +322,7 @@ def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, 
         init_y = np.append(init_y, np.take(unobserved_y, idx, axis=0), axis=0)
 
         # Optimize the model again
+        model.init_model()
         model.optimize(init_x, init_y)
 
         # Remove from unobserved data
@@ -301,7 +330,7 @@ def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, 
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
 
-def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobserved_y, iters=100):
+def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
     """
     Starts an active learning process to train the model using the maximum
     mutual information criterion.
@@ -377,21 +406,25 @@ def main():
     m = BayesianCNN(keras.losses.kullback_leibler_divergence,
                     keras.optimizers.Adadelta())
 
-    # We initially train the model with only 50 inputs
+    # We initially train the model with only 10 inputs
     init_x, init_y = x_train[:50], y_train[:50]
     m.optimize(init_x, init_y)
 
     # Let the model actively learn on its own
-    unobserved_x, unobserved_y = x_train[50:], y_train[50:]
+    unobserved_x, unobserved_y = x_train[50:3000], y_train[50:3000]
 
-    # active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=100)
-    # active_learn_max_entropy(m, init_x, init_y, unobserved_x, unobserved_y, iters=30, k=1)
-    active_learn_mse(m, init_x, init_y, unobserved_x, unobserved_y, iters=10, k=100)
+    iters = 10
+    k = 50
+
+    # active_learn_random(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
+    # active_learn_mse(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
+    active_learn_max_entropy(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
+    # active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
 
     # Evaluate our model against test set!
     loss, accuracy = m.evaluate(x_test, y_test)
-    print(f'Loss: {loss}') # 0.836
-    print(f'Accuracy: {accuracy}') # 0.8219
+    print(f'Loss: {loss}')
+    print(f'Accuracy: {accuracy}')
 
 
 if __name__ == '__main__':
