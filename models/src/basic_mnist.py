@@ -111,10 +111,11 @@ class MnistMLP(object):
         })
       self.inference.print_progress(info_dict)
       variables_names =[v.name for v in tf.trainable_variables()]
-      sess = ed.get_session()
-      values = sess.run(variables_names)
-      for k,v in zip(variables_names, values):
-        print(k, v)
+      print(variables_names)
+      # sess = ed.get_session()
+      # values = sess.run(variables_names)
+      # for k,v in zip(variables_names, values):
+      #   print(k, v)
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
