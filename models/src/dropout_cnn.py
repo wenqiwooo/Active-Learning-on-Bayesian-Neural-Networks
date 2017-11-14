@@ -2,6 +2,7 @@ import os
 import sys
 import datetime
 
+import click
 import numpy as np
 from scipy.special import gamma,psi
 from scipy.linalg import det
@@ -360,7 +361,7 @@ def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobser
             print(unobserved_preds.shape)
 
             # TODO: This part is not done yet.
-            mi = entropy(unobserved_preds)
+            mi = entropy(unobserved_preds) - entropy(unobserved_preds)
 
             if mi > max_mi:
                 idx = j
@@ -379,7 +380,8 @@ def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobser
         unobserved_x = np.delete(unobserved_x, idx, 0)
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
-def main():
+
+def load_data():
     # the data, shuffled and split between train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
 
@@ -402,30 +404,60 @@ def main():
     y_train = keras.utils.to_categorical(y_train, num_classes)
     y_test = keras.utils.to_categorical(y_test, num_classes)
 
+    return (x_train, y_train), (x_test, y_test)
+
+@click.command()
+@click.option('--initial', default=50, help='Number of rows of initial data to train the neural network')
+@click.option('--unobserved', default=3000, help='Total number of unobserved data')
+@click.option('--samples', default=10, help='Number of samples to pick in each active learning iteration (active learning batch)')
+@click.option('--datasize', default=1000, help='Total rows of data to use for our active learning, excluding the initialization data')
+def train(initial, unobserved, samples, datasize):
+    print('=============================================')
+    print(f'Running Bayesian Neural Network experiment:')
+    print(f'Initial data size: {initial}')
+    print(f'Unobserved data size: {unobserved}')
+    print(f'Active Learning Batch: {samples}')
+    print(f'Total datasize used for active learning: {datasize}')
+    print('=============================================')
+
+    # Load MNIST datset
+    (x_train, y_train), (x_test, y_test) = load_data()
+
     # Initialize a model
     m = BayesianCNN(keras.losses.kullback_leibler_divergence,
                     keras.optimizers.Adadelta())
 
-    # We initially train the model with only 10 inputs
-    init_x, init_y = x_train[:50], y_train[:50]
+    init_x, init_y = x_train[:initial], y_train[:initial]
     m.optimize(init_x, init_y)
 
     # Let the model actively learn on its own
-    unobserved_x, unobserved_y = x_train[50:3000], y_train[50:3000]
+    unobserved_x, unobserved_y = x_train[initial:initial+unobserved], y_train[initial:initial+unobserved]
 
-    iters = 10
-    k = 50
+    iters = datasize // samples
 
-    # active_learn_random(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
-    # active_learn_mse(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
-    active_learn_max_entropy(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
-    # active_learn_mutual_information(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=k)
+    # Active learning
+    active_learn_functions = {
+        'Random': active_learn_random,
+        'MSE': active_learn_mse,
+        'Max Entropy': active_learn_max_entropy,
+    }
 
-    # Evaluate our model against test set!
-    loss, accuracy = m.evaluate(x_test, y_test)
-    print(f'Loss: {loss}')
-    print(f'Accuracy: {accuracy}')
+    for name, f in active_learn_functions.items():
+        print('==============================')
+        print(f'Running experiments for {name}')
+        print('==============================')
+
+        # Initialize a new model
+        m = BayesianCNN(keras.losses.kullback_leibler_divergence,
+                        keras.optimizers.Adadelta())
+
+        f(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=samples)
+
+        # Evaluate our model against test set!
+        loss, accuracy = m.evaluate(x_test, y_test)
+        print(f'Loss: {loss}')
+        print(f'Accuracy: {accuracy}')
 
 
 if __name__ == '__main__':
-    main()
+    train()
