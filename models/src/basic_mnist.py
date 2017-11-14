@@ -114,7 +114,7 @@ class MnistMLP(object):
       sess = ed.get_session()
       qw1_loc, qw1_scale = sess.run(variables_names)
       qw1_scale = np.log(np.exp(qw1_scale) + 1)
-      print(qw1_loc / qw1_scale)
+      print(np.amax(qw1_loc / qw1_scale))
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
