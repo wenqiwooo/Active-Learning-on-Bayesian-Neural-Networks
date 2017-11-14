@@ -114,7 +114,7 @@ class BayesianDropout(object):
       }, data={self.categorical: self.y})
 
     self.lr = tf.train.exponential_decay(
-        5e-3, self.global_step, 10000, 0.95, staircase=True)
+        1e-3, self.global_step, 10000, 0.95, staircase=True)
 
     # self.lr = tf.train.exponential_decay(
     #     1e-3, self.global_step, 10000, 0.95, staircase=True)
