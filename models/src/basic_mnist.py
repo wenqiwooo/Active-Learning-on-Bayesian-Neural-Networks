@@ -112,9 +112,9 @@ class MnistMLP(object):
       self.inference.print_progress(info_dict)
       variables_names =['qw1_loc:0', 'qw1_scale:0']
       sess = ed.get_session()
-      values = sess.run(variables_names)
-      for k,v in zip(variables_names, values):
-        print(k, v[0][0])
+      qw1_loc, qw1_scale = sess.run(variables_names)
+      qw1_scale = np.log(np.exp(qw1_scale) + 1)
+      print(qw1_loc / qw1_scale)
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
