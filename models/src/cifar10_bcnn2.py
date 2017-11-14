@@ -139,9 +139,10 @@ class BayesianDropout(object):
       print('Loss: {}   Steps: {}'.format(loss, steps))
 
       variables_names =[v.name for v in tf.trainable_variables()]
+      sess = ed.get_session()
       values = sess.run(variables_names)
       for k,v in zip(variables_names, values):
-          print(k, v)
+        print(k, v)
 
       if saver is not None:
         sess = ed.get_session()
