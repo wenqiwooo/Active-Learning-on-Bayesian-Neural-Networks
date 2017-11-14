@@ -32,23 +32,23 @@ class MnistMLP(object):
     self.w3_shape = (64, 10)
     self.w4_shape = (64, 10)
 
-    self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
+    self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape) * 0.1)
     self.b1 = Normal(
-        loc=tf.zeros(self.w1_shape[-1]),scale=tf.ones(self.w1_shape[-1]))
+        loc=tf.zeros(self.w1_shape[-1]),scale=tf.ones(self.w1_shape[-1]) * 0.1)
 
-    self.w2 = Normal(loc=tf.zeros(self.w2_shape), scale=tf.ones(self.w2_shape))
+    self.w2 = Normal(loc=tf.zeros(self.w2_shape), scale=tf.ones(self.w2_shape) * 0.1)
     self.b2 = Normal(
-        loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]))
+        loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]) * 0.1)
 
     self.w3 = Normal(
-        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape))
+        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape) * 0.1)
     self.b3 = Normal(
-        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]))
+        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]) * 0.1)
 
     self.w4 = Normal(
-        loc=tf.zeros(self.w4_shape), scale=tf.ones(self.w4_shape))
+        loc=tf.zeros(self.w4_shape), scale=tf.ones(self.w4_shape) * 0.1)
     self.b4 = Normal(
-        loc=tf.zeros(self.w4_shape[-1]), scale=tf.ones(self.w4_shape[-1]))
+        loc=tf.zeros(self.w4_shape[-1]), scale=tf.ones(self.w4_shape[-1]) * 0.1)
 
     self.nn = MLP(self.w1, self.b1, self.w2, self.b2, self.w3, self.b3, 
         self.w4, self.b4, self.X_placeholder)
