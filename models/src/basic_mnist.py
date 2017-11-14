@@ -27,9 +27,9 @@ class MnistMLP(object):
     self.Y_placeholder = tf.placeholder(tf.int32, (None,))
 
     # Prior distribution
-    self.w1_shape = (784, 64)
-    self.w2_shape = (64, 32)
-    self.w3_shape = (32, 10)
+    self.w1_shape = (784, 32)
+    self.w2_shape = (32, 16)
+    self.w3_shape = (16, 10)
     self.w4_shape = (64, 10)
 
     self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
