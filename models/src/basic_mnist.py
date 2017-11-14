@@ -56,20 +56,20 @@ class MnistMLP(object):
 
     # Q distribution
     self.qw1 = Normal(
-        loc=tf.Variable(tf.random_normal(self.w1_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape))))
+        loc=tf.Variable(tf.random_normal(self.w1_shape), name='qw1_loc'),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape), name='qw1_scale')))
     self.qb1 = Normal(
-        loc=tf.Variable(tf.random_normal([self.w1_shape[-1]])),
+        loc=tf.Variable(tf.random_normal([self.w1_shape[-1]]), name='qb1_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w1_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w1_shape[-1]]), name='qb1_scale')))
 
     self.qw2 = Normal(
-        loc=tf.Variable(tf.random_normal(self.w2_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape))))
+        loc=tf.Variable(tf.random_normal(self.w2_shape), name='qw2_loc'),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape), name='qw2_scale')))
     self.qb2 = Normal(
-        loc=tf.Variable(tf.random_normal([self.w2_shape[-1]])),
+        loc=tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w2_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_scale')))
 
     self.qw3 = Normal(
         loc=tf.Variable(tf.random_normal(self.w3_shape)),
