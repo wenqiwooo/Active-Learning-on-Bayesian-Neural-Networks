@@ -57,35 +57,35 @@ class MnistMLP(object):
     # Q distribution
     self.qw1 = Normal(
         loc=tf.Variable(tf.random_normal(self.w1_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape))))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape) * 0.1)))
     self.qb1 = Normal(
         loc=tf.Variable(tf.random_normal([self.w1_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w1_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w1_shape[-1]]) * 0.1)))
 
     self.qw2 = Normal(
         loc=tf.Variable(tf.random_normal(self.w2_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape))))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape) * 0.1)))
     self.qb2 = Normal(
         loc=tf.Variable(tf.random_normal([self.w2_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w2_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w2_shape[-1]]) * 0.1)))
 
     self.qw3 = Normal(
         loc=tf.Variable(tf.random_normal(self.w3_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape))))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape) * 0.1)))
     self.qb3 = Normal(
         loc=tf.Variable(tf.random_normal([self.w3_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w3_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w3_shape[-1]]) * 0.1)))
 
     self.qw4 = Normal(
         loc=tf.Variable(tf.random_normal(self.w4_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape))))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape) * 0.1)))
     self.qb4 = Normal(
         loc=tf.Variable(tf.random_normal([self.w4_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w4_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w4_shape[-1]]) * 0.1)))
 
     self.inference = ed.KLqp({
         self.w1: self.qw1, self.b1: self.qb1,
