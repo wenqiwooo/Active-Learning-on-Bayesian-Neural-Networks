@@ -9,10 +9,9 @@ from tqdm import tqdm
 def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
   fc1 = tf.nn.relu(tf.matmul(X, w1) + b1)
   fc2 = tf.nn.relu(tf.matmul(fc1, w2) + b2)
-  fc3 = tf.matmul(fc2, w3) + b3
-  # fc4 = tf.matmul(fc3, w4) + b4
-  # return fc4 
-  return fc3
+  fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
+  fc4 = tf.matmul(fc3, w4) + b4
+  return fc4 
 
 
 class MnistMLP(object):
@@ -27,10 +26,10 @@ class MnistMLP(object):
     self.Y_placeholder = tf.placeholder(tf.int32, (None,))
 
     # Prior distribution
-    self.w1_shape = (784, 32)
-    self.w2_shape = (32, 16)
-    self.w3_shape = (16, 10)
-    self.w4_shape = (64, 10)
+    self.w1_shape = (784, 64)
+    self.w2_shape = (64, 32)
+    self.w3_shape = (32, 16)
+    self.w4_shape = (16, 10)
 
     self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
     self.b1 = Normal(
@@ -91,7 +90,7 @@ class MnistMLP(object):
         self.w1: self.qw1, self.b1: self.qb1,
         self.w2: self.qw2, self.b2: self.qb2,
         self.w3: self.qw3, self.b3: self.qb3,
-        # self.w4: self.qw4, self.b4: self.qb4,
+        self.w4: self.qw4, self.b4: self.qb4,
       }, data={self.categorical: self.Y_placeholder})
 
     self.inference.initialize(n_iter=self.iterations, 
