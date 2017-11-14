@@ -95,7 +95,7 @@ class MnistMLP(object):
 
     self.global_step = tf.Variable(
       initial_value=0, name='global_step', trainable=False)
-    self.optimizer = tf.train.AdamOptimizer(1e-4)
+    self.optimizer = tf.train.AdamOptimizer(1e-5)
     self.inference.initialize(optimizer=self.optimizer, global_step=self.global_step)
 
     # self.inference.initialize(n_iter=self.iterations, 
