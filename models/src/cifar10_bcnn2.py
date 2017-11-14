@@ -138,7 +138,12 @@ class BayesianDropout(object):
         steps = info_dict['t']
       print('Loss: {}   Steps: {}'.format(loss, steps))
 
-      variables_names =[v.name for v in tf.trainable_variables()]
+      variables_names =[
+        'qd1_a:0', 'qd1_b:0', 
+        'qd2_a:0', 'qd2_b:0',
+        'qd3_a:0', 'qd3_b:0', 
+        'qd4_a:0', 'qd4_b:0',
+      ]
       sess = ed.get_session()
       values = sess.run(variables_names)
       for k,v in zip(variables_names, values):
