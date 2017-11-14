@@ -114,13 +114,12 @@ class BayesianDropout(object):
       }, data={self.categorical: self.y})
 
     self.lr = tf.train.exponential_decay(
-        0.01, self.global_step, 10000, 0.95, staircase=True)
+        1e-3, self.global_step, 10000, 0.95, staircase=True)
 
     self.optimizer = tf.train.AdamOptimizer(self.lr)
 
     iterations = self.epochs * math.ceil(self.data_size / self.batch_size)
-    # self.inference.initialize(optimizer=self.optimizer, global_step=self.global_step)
-    self.inference.initialize(n_iter=iterations, global_step=self.global_step)
+    self.inference.initialize(optimizer=self.optimizer, global_step=self.global_step)
 
 
   def optimize(self, X, Y, epochs, batch_size, 
