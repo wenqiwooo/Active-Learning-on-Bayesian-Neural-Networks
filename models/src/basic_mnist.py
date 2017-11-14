@@ -8,11 +8,11 @@ from tqdm import tqdm
 
 def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
   fc1 = tf.nn.relu(tf.matmul(X, w1) + b1)
-  fc2 = tf.nn.relu(tf.matmul(fc1, w2) + b2)
+  #fc2 = tf.nn.relu(tf.matmul(fc1, w2) + b2)
   # fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
   # fc4 = tf.matmul(fc3, w4) + b4
-  fc3 = tf.matmul(fc2, w3) + b3
-  return fc3 
+  fc2 = tf.matmul(fc1, w2) + b2
+  return fc2
 
 
 class MnistMLP(object):
@@ -90,7 +90,7 @@ class MnistMLP(object):
     self.inference = ed.KLqp({
         self.w1: self.qw1, self.b1: self.qb1,
         self.w2: self.qw2, self.b2: self.qb2,
-        self.w3: self.qw3, self.b3: self.qb3,
+        # self.w3: self.qw3, self.b3: self.qb3,
         # self.w4: self.qw4, self.b4: self.qb4,
       }, data={self.categorical: self.Y_placeholder})
 
@@ -99,8 +99,8 @@ class MnistMLP(object):
     self.optimizer = tf.train.AdamOptimizer(1e-3)
     self.inference.initialize(optimizer=self.optimizer, global_step=self.global_step)
 
-    # self.inference.initialize(n_iter=self.iterations, 
-    #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
+    self.inference.initialize(n_iter=self.iterations, 
+        scale={self.categorical: mnist.train.num_examples / self.batch_size})
 
   def optimize(self, mnist):
     for _ in range(self.inference.n_iter):
@@ -110,6 +110,11 @@ class MnistMLP(object):
           self.Y_placeholder: Y_batch
         })
       self.inference.print_progress(info_dict)
+      variables_names =[v.name for v in tf.trainable_variables()]
+      sess = ed.get_session()
+      values = sess.run(variables_names)
+      for k,v in zip(variables_names, values):
+        print(k, v)
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
