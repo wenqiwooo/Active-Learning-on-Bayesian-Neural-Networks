@@ -27,28 +27,28 @@ class MnistMLP(object):
     self.Y_placeholder = tf.placeholder(tf.int32, (None,))
 
     # Prior distribution
-    self.w1_shape = (784, 392)
-    self.w2_shape = (392, 64)
+    self.w1_shape = (784, 128)
+    self.w2_shape = (128, 64)
     self.w3_shape = (64, 10)
     self.w4_shape = (64, 10)
 
-    self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape) * 0.1)
+    self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
     self.b1 = Normal(
-        loc=tf.zeros(self.w1_shape[-1]),scale=tf.ones(self.w1_shape[-1]) * 0.1)
+        loc=tf.zeros(self.w1_shape[-1]),scale=tf.ones(self.w1_shape[-1]))
 
-    self.w2 = Normal(loc=tf.zeros(self.w2_shape), scale=tf.ones(self.w2_shape) * 0.1)
+    self.w2 = Normal(loc=tf.zeros(self.w2_shape), scale=tf.ones(self.w2_shape))
     self.b2 = Normal(
-        loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]) * 0.1)
+        loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]))
 
     self.w3 = Normal(
-        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape) * 0.1)
+        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape))
     self.b3 = Normal(
-        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]) * 0.1)
+        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]))
 
     self.w4 = Normal(
-        loc=tf.zeros(self.w4_shape), scale=tf.ones(self.w4_shape) * 0.1)
+        loc=tf.zeros(self.w4_shape), scale=tf.ones(self.w4_shape))
     self.b4 = Normal(
-        loc=tf.zeros(self.w4_shape[-1]), scale=tf.ones(self.w4_shape[-1]) * 0.1)
+        loc=tf.zeros(self.w4_shape[-1]), scale=tf.ones(self.w4_shape[-1]))
 
     self.nn = MLP(self.w1, self.b1, self.w2, self.b2, self.w3, self.b3, 
         self.w4, self.b4, self.X_placeholder)
@@ -57,35 +57,35 @@ class MnistMLP(object):
     # Q distribution
     self.qw1 = Normal(
         loc=tf.Variable(tf.random_normal(self.w1_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape) * 0.1)))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape))))
     self.qb1 = Normal(
         loc=tf.Variable(tf.random_normal([self.w1_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w1_shape[-1]]) * 0.1)))
+            tf.Variable(tf.random_normal([self.w1_shape[-1]]))))
 
     self.qw2 = Normal(
         loc=tf.Variable(tf.random_normal(self.w2_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape) * 0.1)))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape))))
     self.qb2 = Normal(
         loc=tf.Variable(tf.random_normal([self.w2_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w2_shape[-1]]) * 0.1)))
+            tf.Variable(tf.random_normal([self.w2_shape[-1]]))))
 
     self.qw3 = Normal(
         loc=tf.Variable(tf.random_normal(self.w3_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape) * 0.1)))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape))))
     self.qb3 = Normal(
         loc=tf.Variable(tf.random_normal([self.w3_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w3_shape[-1]]) * 0.1)))
+            tf.Variable(tf.random_normal([self.w3_shape[-1]]))))
 
     self.qw4 = Normal(
         loc=tf.Variable(tf.random_normal(self.w4_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape) * 0.1)))
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape))))
     self.qb4 = Normal(
         loc=tf.Variable(tf.random_normal([self.w4_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w4_shape[-1]]) * 0.1)))
+            tf.Variable(tf.random_normal([self.w4_shape[-1]]))))
 
     self.inference = ed.KLqp({
         self.w1: self.qw1, self.b1: self.qb1,
