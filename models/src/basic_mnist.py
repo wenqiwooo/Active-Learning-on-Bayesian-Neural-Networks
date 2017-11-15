@@ -8,12 +8,13 @@ from tqdm import tqdm
 
 
 def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
-  fc1 = tf.nn.relu(tf.matmul(X, w1) + b1)
-  fc2 = tf.nn.relu(tf.matmul(fc1, w2) + b2)
+  h = tf.nn.relu(tf.matmul(X, w1) + b1)
+  h = tf.nn.relu(tf.matmul(h, w2) + b2)
+  h = tf.matmul(h, w3) + b3
   # fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
   # fc4 = tf.matmul(fc3, w4) + b4
   # fc3 = tf.matmul(fc2, w3) + b3
-  return tf.matmul(fc2, w3) + b3
+  return h
 
 
 class MnistMLP(object):
@@ -60,36 +61,36 @@ class MnistMLP(object):
 
     # Q distribution
     self.qw1 = Normal(
-        loc=tf.Variable(tf.zeros(self.w1_shape), name='qw1_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.ones(self.w1_shape), name='qw1_scale')))
+        loc=tf.Variable(tf.random_normal(self.w1_shape), name='qw1_loc'),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape), name='qw1_scale')))
     self.qb1 = Normal(
-        loc=tf.Variable(tf.zeros([self.w1_shape[-1]]), name='qb1_loc'),
+        loc=tf.Variable(tf.random_normal([self.w1_shape[-1]]), name='qb1_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.ones([self.w1_shape[-1]]), name='qb1_scale')))
+            tf.Variable(tf.random_normal([self.w1_shape[-1]]), name='qb1_scale')))
 
     self.qw2 = Normal(
-        loc=tf.Variable(tf.zeros(self.w2_shape), name='qw2_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.ones(self.w2_shape), name='qw2_scale')))
+        loc=tf.Variable(tf.random_normal(self.w2_shape), name='qw2_loc'),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape), name='qw2_scale')))
     self.qb2 = Normal(
-        loc=tf.Variable(tf.zeros([self.w2_shape[-1]]), name='qb2_loc'),
+        loc=tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.ones([self.w2_shape[-1]]), name='qb2_scale')))
+            tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_scale')))
 
     self.qw3 = Normal(
-        loc=tf.Variable(tf.zeros(self.w3_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.ones(self.w3_shape))))
+        loc=tf.Variable(tf.random_normal(self.w3_shape), name='qw3_loc'),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape), name='qw3_scale')))
     self.qb3 = Normal(
-        loc=tf.Variable(tf.zeros([self.w3_shape[-1]])),
+        loc=tf.Variable(tf.random_normal([self.w3_shape[-1]]), name='qb3_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.ones([self.w3_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w3_shape[-1]]), name='qb3_scale')))
 
     self.qw4 = Normal(
-        loc=tf.Variable(tf.random_normal(self.w4_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape))))
+        loc=tf.Variable(tf.random_normal(self.w4_shape), name='qw4_loc'),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape), name='qw4_scale')))
     self.qb4 = Normal(
-        loc=tf.Variable(tf.random_normal([self.w4_shape[-1]])),
+        loc=tf.Variable(tf.random_normal([self.w4_shape[-1]]), name='qb4_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w4_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w4_shape[-1]]), name='qb4_scale')))
 
     self.inference = ed.KLqp({
         self.w1: self.qw1, self.b1: self.qb1,
@@ -97,11 +98,6 @@ class MnistMLP(object):
         self.w3: self.qw3, self.b3: self.qb3,
         # self.w4: self.qw4, self.b4: self.qb4,
       }, data={self.categorical: self.Y_placeholder})
-
-    self.global_step = tf.Variable(
-      initial_value=0, name='global_step', trainable=False)
-    self.optimizer = tf.train.AdamOptimizer(1e-3)
-    self.inference.initialize(optimizer=self.optimizer, global_step=self.global_step)
 
     self.inference.initialize(n_iter=self.iterations, 
         scale={self.categorical: mnist.train.num_examples / self.batch_size})
