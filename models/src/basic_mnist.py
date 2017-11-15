@@ -30,8 +30,8 @@ class MnistMLP(object):
     # Prior distribution
     self.w1_shape = (784, 64)
     self.w2_shape = (64, 10)
-    # self.w3_shape = (32, 10)
-    # self.w4_shape = (16, 10)
+    self.w3_shape = (32, 10)
+    self.w4_shape = (16, 10)
 
     scale = 1 / math.sqrt(784*64 + 64*32)
 
