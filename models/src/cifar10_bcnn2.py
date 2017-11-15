@@ -61,23 +61,23 @@ class BayesianDropout(object):
     self.y = tf.placeholder(tf.int32, shape=(None,))
 
     # Prior distribution
-    self.d1 = Beta(2., 4.)
-    self.d2 = Beta(2., 4.)
-    self.d3 = Beta(2., 4.)
-    self.d4 = Beta(2., 4.)
+    self.d1 = Beta(6., 20.)
+    self.d2 = Beta(6., 20.)
+    self.d3 = Beta(6., 20.)
+    self.d4 = Beta(6., 20.)
 
     self.qd1 = Beta(
-        tf.Variable(2., tf.float32, name='qd1_a'), 
-        tf.Variable(4., tf.float32, name='qd1_b'))
+        tf.Variable(6., tf.float32, name='qd1_a'), 
+        tf.Variable(20., tf.float32, name='qd1_b'))
     self.qd2 = Beta(
-        tf.Variable(2., tf.float32, name='qd2_a'), 
-        tf.Variable(4., tf.float32, name='qd2_b'))
+        tf.Variable(6., tf.float32, name='qd2_a'), 
+        tf.Variable(20., tf.float32, name='qd2_b'))
     self.qd3 = Beta(
-        tf.Variable(2., tf.float32, name='qd3_a'), 
-        tf.Variable(4., tf.float32, name='qd3_b'))
+        tf.Variable(6., tf.float32, name='qd3_a'), 
+        tf.Variable(20., tf.float32, name='qd3_b'))
     self.qd4 = Beta(
-        tf.Variable(2., tf.float32, name='qd4_a'), 
-        tf.Variable(4., tf.float32, name='qd4_b'))
+        tf.Variable(6., tf.float32, name='qd4_a'), 
+        tf.Variable(20., tf.float32, name='qd4_b'))
 
     self.f1 = tf.get_variable('f1', (5, 5, 3, 6), dtype=tf.float32, 
         initializer=tf.contrib.layers.xavier_initializer())
