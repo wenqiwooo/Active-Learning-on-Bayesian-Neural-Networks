@@ -61,23 +61,23 @@ class BayesianDropout(object):
     self.y = tf.placeholder(tf.int32, shape=(None,))
 
     # Prior distribution
-    self.d1 = Beta(6., 20.)
-    self.d2 = Beta(6., 20.)
-    self.d3 = Beta(6., 20.)
-    self.d4 = Beta(6., 20.)
+    self.d1 = Beta(4., 2.)
+    self.d2 = Beta(4., 2.)
+    self.d3 = Beta(4., 2.)
+    self.d4 = Beta(4., 2.)
 
     self.qd1 = Beta(
-        tf.Variable(6., tf.float32, name='qd1_a'), 
-        tf.Variable(20., tf.float32, name='qd1_b'))
+        tf.Variable(4., tf.float32, name='qd1_a'), 
+        tf.Variable(2., tf.float32, name='qd1_b'))
     self.qd2 = Beta(
-        tf.Variable(6., tf.float32, name='qd2_a'), 
-        tf.Variable(20., tf.float32, name='qd2_b'))
+        tf.Variable(4., tf.float32, name='qd2_a'), 
+        tf.Variable(2., tf.float32, name='qd2_b'))
     self.qd3 = Beta(
-        tf.Variable(6., tf.float32, name='qd3_a'), 
-        tf.Variable(20., tf.float32, name='qd3_b'))
+        tf.Variable(4., tf.float32, name='qd3_a'), 
+        tf.Variable(2., tf.float32, name='qd3_b'))
     self.qd4 = Beta(
-        tf.Variable(6., tf.float32, name='qd4_a'), 
-        tf.Variable(20., tf.float32, name='qd4_b'))
+        tf.Variable(4., tf.float32, name='qd4_a'), 
+        tf.Variable(2., tf.float32, name='qd4_b'))
 
     self.f1 = tf.get_variable('f1', (5, 5, 3, 6), dtype=tf.float32, 
         initializer=tf.contrib.layers.xavier_initializer())
@@ -128,6 +128,17 @@ class BayesianDropout(object):
   def optimize(self, X, Y, epochs, batch_size, 
       X_test=None, Y_test=None, n_samples=10, saver=None):
     print('Optimizing {} training examples'.format(self.data_size))
+    losses = []
+    qd1_a_list = []
+    qd1_b_list = []
+    qd2_a_list = []
+    qd2_b_list = []
+    qd3_a_list = []
+    qd3_b_list = []
+    qd4_a_list = []
+    qd4_b_list = []
+    accuracies = []
+
     for i in range(1, epochs+1):
       print('Optimizing for epoch {}'.format(i))
       loss = 0
@@ -140,6 +151,7 @@ class BayesianDropout(object):
         loss += info_dict['loss']
         steps = info_dict['t']
       print('Loss: {}   Steps: {}'.format(loss, steps))
+      losses.append(loss)
 
       variables_names =[
         'qd1_a:0', 'qd1_b:0', 
@@ -148,9 +160,16 @@ class BayesianDropout(object):
         'qd4_a:0', 'qd4_b:0',
       ]
       sess = ed.get_session()
-      values = sess.run(variables_names)
-      for k,v in zip(variables_names, values):
-        print(k, v)
+      qd1_a, qd1_b, qd2_a, qd2_b, qd3_a, qd3_b, qd4_a, qd4_b = sess.run(
+          variables_names)
+      qd1_a_list.append(qd1_a)
+      qd1_b_list.append(qd1_b)
+      qd2_a_list.append(qd2_a)
+      qd2_b_list.append(qd2_b)
+      qd3_a_list.append(qd3_a)
+      qd3_b_list.append(qd3_b)
+      qd4_a_list.append(qd4_a)
+      qd4_b_list.append(qd4_b)
 
       if saver is not None:
         sess = ed.get_session()
@@ -159,6 +178,18 @@ class BayesianDropout(object):
       if X_test is not None and Y_test is not None:
         acc = self.validate(X_test[:1000], Y_test[:1000], batch_size, n_samples)
         print('Validation: {}'.format(acc))
+        accuracies.append(acc)
+
+      print(losses)
+      print(qd1_a_list)
+      print(qd1_b_list)
+      print(qd2_a_list)
+      print(qd2_b_list)
+      print(qd3_a_list)
+      print(qd3_b_list)
+      print(qd4_a_list)
+      print(qd4_b_list)
+      print(accuracies)
 
   def validate(self, X_test, Y_test, batch_size, n_samples):
     X = tf.convert_to_tensor(X_test, np.float32)
