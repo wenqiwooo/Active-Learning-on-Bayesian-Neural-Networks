@@ -33,7 +33,7 @@ class MnistMLP(object):
     self.w3_shape = (64, 10)
     self.w4_shape = (16, 10)
 
-    scale = 1 / math.sqrt(784*64 + 64*32)
+    scale = 1 / math.sqrt(784*392 + 392*64)
 
     self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
     self.b1 = Normal(
