@@ -971,6 +971,640 @@ qd4_b:0 2.21371
 Validation: 0.103
 
 
+//--------------
+// 20 20
+//--------------
 
+Optimizing for epoch 1
+Loss: 134834.25452423096   Steps: 1000
+qd1_a:0 20.0046
+qd1_b:0 19.9986
+qd2_a:0 19.9916
+qd2_b:0 20.0177
+qd3_a:0 19.9441
+qd3_b:0 20.0291
+qd4_a:0 19.9461
+qd4_b:0 20.0546
+100%|████████████████████████████████████████████████████| 10/10 [00:01<00:00,  5.21it/s]
+Validation: 0.0907
+Optimizing for epoch 2
+Loss: 115172.14533233643   Steps: 2000
+qd1_a:0 20.0649
+qd1_b:0 19.9568
+qd2_a:0 20.1044
+qd2_b:0 19.9143
+qd3_a:0 19.8727
+qd3_b:0 20.0918
+qd4_a:0 20.0273
+qd4_b:0 19.9591
+100%|████████████████████████████████████████████████████| 10/10 [00:02<00:00,  4.64it/s]
+Validation: 0.1019
+Optimizing for epoch 3
+Loss: 115172.13945007324   Steps: 3000
+qd1_a:0 20.0166
+qd1_b:0 20.0061
+qd2_a:0 20.2551
+qd2_b:0 19.7841
+qd3_a:0 19.9609
+qd3_b:0 19.9774
+qd4_a:0 19.9838
+qd4_b:0 20.0505
+100%|████████████████████████████████████████████████████| 10/10 [00:02<00:00,  3.91it/s]
+Validation: 0.0903
+Optimizing for epoch 4
+^CTraceback (most recent call last):
+  File "cifar10_bcnn_train.py", line 123, in <module>
+    tf.app.run()
+  File "/home/wenqi/tf-venv3/lib/python3.5/site-packages/tensorflow/python/platform/app.py", line 48, in run
+    _sys.exit(main(_sys.argv[:1] + flags_passthrough))
+  File "cifar10_bcnn_train.py", line 110, in main
+    X_test, Y_test, 10, saver=saver)
+  File "/home/wenqi/cnn-lstm/models/src/cifar10_bcnn2.py", line 138, in optimize
+    self.y: Y_batch
+  File "/home/wenqi/tf-venv3/lib/python3.5/site-packages/edward/inferences/variational_inference.py", line 154, in update
+    _, t, loss = sess.run([self.train, self.increment_t, self.loss], feed_dict)
+  File "/home/wenqi/tf-venv3/lib/python3.5/site-packages/tensorflow/python/client/session.py", line 789, in run
+    run_metadata_ptr)
+  File "/home/wenqi/tf-venv3/lib/python3.5/site-packages/tensorflow/python/client/session.py", line 937, in _run
+    feed_dict = nest.flatten_dict_items(feed_dict)
+  File "/home/wenqi/tf-venv3/lib/python3.5/site-packages/tensorflow/python/util/nest.py", line 184, in flatten_dict_items
+    if not is_sequence(i):
+  File "/home/wenqi/tf-venv3/lib/python3.5/site-packages/tensorflow/python/util/nest.py", line 86, in is_sequence
+    return (isinstance(seq, collections.Sequence)
+  File "/home/wenqi/tf-venv3/lib/python3.5/abc.py", line 181, in __instancecheck__
+    subclass = instance.__class__
+KeyboardInterrupt
+(tf-venv3) wenqi@feynman:~/cnn-lstm/models/src$ rm ../checkpoint/*
+(tf-venv3) wenqi@feynman:~/cnn-lstm/models/src$ git pull
+remote: Counting objects: 5, done.
+remote: Compressing objects: 100% (1/1), done.
+remote: Total 5 (delta 4), reused 5 (delta 4), pack-reused 0
+Unpacking objects: 100% (5/5), done.
+From github.com:wenqiwooo/cnn-lstm
+   9b83bf8..ed6b5aa  wenqi      -> origin/wenqi
+Merge made by the 'recursive' strategy.
+ models/src/cifar10_bcnn2.py | 2 +-
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+(tf-venv3) wenqi@feynman:~/cnn-lstm/models/src$ rm ../checkpoint/*
+rm: cannot remove '../checkpoint/*': No such file or directory
+(tf-venv3) wenqi@feynman:~/cnn-lstm/models/src$ python3 cifar10_bcnn_train.py
+Using TensorFlow backend.
+2017-11-15 03:23:46.658019: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.1 instructions, but these are available on your machine and could speed up CPU computations.
+2017-11-15 03:23:46.658046: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use SSE4.2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-11-15 03:23:46.658052: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX instructions, but these are available on your machine and could speed up CPU computations.
+2017-11-15 03:23:46.658058: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use AVX2 instructions, but these are available on your machine and could speed up CPU computations.
+2017-11-15 03:23:46.658063: W tensorflow/core/platform/cpu_feature_guard.cc:45] The TensorFlow library wasn't compiled to use FMA instructions, but these are available on your machine and could speed up CPU computations.
+2017-11-15 03:23:47.332122: I tensorflow/stream_executor/cuda/cuda_gpu_executor.cc:893] successful NUMA node read from SysFS had negative value (-1), but there must be at least one NUMA node, so returning NUMA node zero
+2017-11-15 03:23:47.332416: I tensorflow/core/common_runtime/gpu/gpu_device.cc:940] Found device 0 with properties:
+name: GeForce GTX 1060
+major: 6 minor: 1 memoryClockRate (GHz) 1.6705
+pciBusID 0000:01:00.0
+Total memory: 5.93GiB
+Free memory: 5.86GiB
+2017-11-15 03:23:47.332435: I tensorflow/core/common_runtime/gpu/gpu_device.cc:961] DMA: 0
+2017-11-15 03:23:47.332441: I tensorflow/core/common_runtime/gpu/gpu_device.cc:971] 0:   Y
+2017-11-15 03:23:47.332452: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1060, pci bus id: 0000:01:00.0)
+2017-11-15 03:23:54.013114: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1030] Creating TensorFlow device (/gpu:0) -> (device: 0, name: GeForce GTX 1060, pci bus id: 0000:01:00.0)
+Restoring from checkpoint
+2017-11-15 03:23:55.509434: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509458: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509518: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509529: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509554: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509564: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509586: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509596: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509617: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509626: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509647: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509657: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509677: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509686: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509707: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509716: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509737: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509745: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509767: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509776: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509797: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509806: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509827: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509836: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509857: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509866: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509887: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509895: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509917: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509926: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509948: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509956: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509978: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.509986: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510008: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510038: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510053: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510066: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510086: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510097: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510117: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510127: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510148: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510158: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510189: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510196: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510220: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510228: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510251: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510276: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510283: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510334: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510368: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510377: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510402: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510414: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510432: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+2017-11-15 03:23:55.510539: W tensorflow/core/framework/op_kernel.cc:1158] Not found: Unsuccessful TensorSliceReader constructor: Failed to find any matching files for ../checkpoint/beta_dropout.ckpt
+Initializing new variables
+Optimizing 50000 training examples
+Optimizing for epoch 1
+Loss: 184501.57891845703   Steps: 1000
+qd1_a:0 20.0112
+qd1_b:0 19.9854
+qd2_a:0 20.0201
+qd2_b:0 19.9792
+qd3_a:0 20.0082
+qd3_b:0 19.9919
+qd4_a:0 19.9985
+qd4_b:0 20.0003
+100%|████████████████████████████████████████████████████| 10/10 [00:01<00:00,  5.28it/s]
+Validation: 0.0945
+Optimizing for epoch 2
+Loss: 115309.99085235596   Steps: 2000
+qd1_a:0 19.9972
+qd1_b:0 20.0001
+qd2_a:0 20.011
+qd2_b:0 19.9894
+qd3_a:0 20.0209
+qd3_b:0 19.9763
+qd4_a:0 20.0012
+qd4_b:0 19.9995
+100%|████████████████████████████████████████████████████| 10/10 [00:02<00:00,  4.65it/s]
+Validation: 0.1116
+Optimizing for epoch 3
+Loss: 115220.69258880615   Steps: 3000
+qd1_a:0 19.9883
+qd1_b:0 20.0141
+qd2_a:0 20.0033
+qd2_b:0 20.0027
+qd3_a:0 20.0349
+qd3_b:0 19.9583
+qd4_a:0 19.9758
+qd4_b:0 20.0151
+100%|████████████████████████████████████████████████████| 10/10 [00:02<00:00,  3.93it/s]
+Validation: 0.1018
+Optimizing for epoch 4
+Loss: 115187.39440917969   Steps: 4000
+qd1_a:0 20.0042
+qd1_b:0 19.9946
+qd2_a:0 19.9995
+qd2_b:0 20.0183
+qd3_a:0 20.0499
+qd3_b:0 19.9454
+qd4_a:0 19.9788
+qd4_b:0 20.011
+100%|████████████████████████████████████████████████████| 10/10 [00:02<00:00,  3.47it/s]
+Validation: 0.1
+Optimizing for epoch 5
+Loss: 115156.62925720215   Steps: 5000
+qd1_a:0 19.9977
+qd1_b:0 20.0007
+qd2_a:0 20.0093
+qd2_b:0 20.0137
+qd3_a:0 20.0584
+qd3_b:0 19.9326
+qd4_a:0 20.0022
+qd4_b:0 19.9955
+100%|████████████████████████████████████████████████████| 10/10 [00:03<00:00,  3.11it/s]
+Validation: 0.1019
+Optimizing for epoch 6
+Loss: 115165.49032592773   Steps: 6000
+qd1_a:0 20.0051
+qd1_b:0 20.0015
+qd2_a:0 20.0093
+qd2_b:0 20.0157
+qd3_a:0 20.0212
+qd3_b:0 19.9715
+qd4_a:0 20.0022
+qd4_b:0 19.9908
+100%|████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.89it/s]
+Validation: 0.1021
+Optimizing for epoch 7
+Loss: 115160.29440307617   Steps: 7000
+qd1_a:0 20.079
+qd1_b:0 19.9322
+qd2_a:0 20.0124
+qd2_b:0 20.0305
+qd3_a:0 20.0448
+qd3_b:0 19.9383
+qd4_a:0 19.9957
+qd4_b:0 20.0086
+100%|████████████████████████████████████████████████████| 10/10 [00:03<00:00,  2.57it/s]
+Validation: 0.109
+Optimizing for epoch 8
+Loss: 115217.2389831543   Steps: 8000
+qd1_a:0 20.1087
+qd1_b:0 19.9039
+qd2_a:0 20.035
+qd2_b:0 20.0128
+qd3_a:0 19.9986
+qd3_b:0 19.9901
+qd4_a:0 19.967
+qd4_b:0 20.0372
+100%|████████████████████████████████████████████████████| 10/10 [00:04<00:00,  2.42it/s]
+Validation: 0.1119
+Optimizing for epoch 9
+Loss: 115147.2354888916   Steps: 9000
+qd1_a:0 20.1319
+qd1_b:0 19.8812
+qd2_a:0 20.0242
+qd2_b:0 20.0175
+qd3_a:0 19.9387
+qd3_b:0 20.0367
+qd4_a:0 19.9867
+qd4_b:0 20.0237
+100%|████████████████████████████████████████████████████| 10/10 [00:04<00:00,  2.19it/s]
+Validation: 0.1
+Optimizing for epoch 10
+Loss: 115147.4400177002   Steps: 10000
+qd1_a:0 20.1734
+qd1_b:0 19.8345
+qd2_a:0 20.0192
+qd2_b:0 20.0181
+qd3_a:0 19.9496
+qd3_b:0 20.0299
+qd4_a:0 19.9909
+qd4_b:0 20.0253
+100%|████████████████████████████████████████████████████| 10/10 [00:04<00:00,  2.09it/s]
+Validation: 0.102
+Optimizing for epoch 11
+Loss: 115411.60846710205   Steps: 11000
+qd1_a:0 20.1494
+qd1_b:0 19.8555
+qd2_a:0 19.9841
+qd2_b:0 20.0575
+qd3_a:0 19.9317
+qd3_b:0 20.0522
+qd4_a:0 19.9961
+qd4_b:0 20.0224
+100%|████████████████████████████████████████████████████| 10/10 [00:05<00:00,  1.96it/s]
+Validation: 0.1
+Optimizing for epoch 12
+Loss: 115215.63133239746   Steps: 12000
+qd1_a:0 20.1749
+qd1_b:0 19.835
+qd2_a:0 19.9638
+qd2_b:0 20.0889
+qd3_a:0 19.9261
+qd3_b:0 20.0528
+qd4_a:0 20.0204
+qd4_b:0 19.9842
+100%|████████████████████████████████████████████████████| 10/10 [00:05<00:00,  1.84it/s]
+Validation: 0.086
+Optimizing for epoch 13
+Loss: 115145.67658233643   Steps: 13000
+qd1_a:0 20.2444
+qd1_b:0 19.7645
+qd2_a:0 19.947
+qd2_b:0 20.0975
+qd3_a:0 19.9089
+qd3_b:0 20.0753
+qd4_a:0 20.0161
+qd4_b:0 19.9747
+100%|████████████████████████████████████████████████████| 10/10 [00:05<00:00,  1.73it/s]
+Validation: 0.09
+Optimizing for epoch 14
+Loss: 115146.633934021   Steps: 14000
+qd1_a:0 20.1535
+qd1_b:0 19.8636
+qd2_a:0 19.9291
+qd2_b:0 20.1187
+qd3_a:0 19.958
+qd3_b:0 20.0291
+qd4_a:0 20.0724
+qd4_b:0 19.9211
+100%|████████████████████████████████████████████████████| 10/10 [00:06<00:00,  1.60it/s]
+Validation: 0.106
+Optimizing for epoch 15
+Loss: 115213.63499450684   Steps: 15000
+qd1_a:0 20.1816
+qd1_b:0 19.8297
+qd2_a:0 19.9594
+qd2_b:0 20.0893
+qd3_a:0 19.9047
+qd3_b:0 20.0805
+qd4_a:0 20.0693
+qd4_b:0 19.923
+100%|████████████████████████████████████████████████████| 10/10 [00:06<00:00,  1.54it/s]
+Validation: 0.086
+Optimizing for epoch 16
+Loss: 115154.85485839844   Steps: 16000
+qd1_a:0 20.2282
+qd1_b:0 19.7872
+qd2_a:0 19.9236
+qd2_b:0 20.1245
+qd3_a:0 19.9248
+qd3_b:0 20.0527
+qd4_a:0 20.0518
+qd4_b:0 19.9409
+100%|████████████████████████████████████████████████████| 10/10 [00:06<00:00,  1.47it/s]
+Validation: 0.102
+Optimizing for epoch 17
+Loss: 115156.1723022461   Steps: 17000
+qd1_a:0 20.2381
+qd1_b:0 19.7665
+qd2_a:0 19.9268
+qd2_b:0 20.1141
+qd3_a:0 19.8765
+qd3_b:0 20.0955
+qd4_a:0 20.0523
+qd4_b:0 19.9273
+100%|████████████████████████████████████████████████████| 10/10 [00:07<00:00,  1.40it/s]
+Validation: 0.106
+Optimizing for epoch 18
+Loss: 115140.90711975098   Steps: 18000
+qd1_a:0 20.2261
+qd1_b:0 19.7754
+qd2_a:0 19.8746
+qd2_b:0 20.1618
+qd3_a:0 19.9036
+qd3_b:0 20.07
+qd4_a:0 20.0539
+qd4_b:0 19.9197
+100%|████████████████████████████████████████████████████| 10/10 [00:07<00:00,  1.34it/s]
+Validation: 0.086
+Optimizing for epoch 19
+Loss: 115175.17889404297   Steps: 19000
+qd1_a:0 20.2031
+qd1_b:0 19.8002
+qd2_a:0 19.893
+qd2_b:0 20.1465
+qd3_a:0 19.9744
+qd3_b:0 20.0012
+qd4_a:0 20.0833
+qd4_b:0 19.9006
+100%|████████████████████████████████████████████████████| 10/10 [00:07<00:00,  1.28it/s]
+Validation: 0.086
+Optimizing for epoch 20
+Loss: 115134.70677947998   Steps: 20000
+qd1_a:0 20.2554
+qd1_b:0 19.7404
+qd2_a:0 19.8896
+qd2_b:0 20.1654
+qd3_a:0 19.9685
+qd3_b:0 20.01
+qd4_a:0 20.1401
+qd4_b:0 19.8404
+100%|████████████████████████████████████████████████████| 10/10 [00:08<00:00,  1.23it/s]
+Validation: 0.086
+Optimizing for epoch 21
+Loss: 115236.0347442627   Steps: 21000
+qd1_a:0 20.2546
+qd1_b:0 19.7481
+qd2_a:0 19.9097
+qd2_b:0 20.1506
+qd3_a:0 19.9744
+qd3_b:0 20.0064
+qd4_a:0 20.1455
+qd4_b:0 19.8372
+100%|████████████████████████████████████████████████████| 10/10 [00:08<00:00,  1.18it/s]
+Validation: 0.109
+Optimizing for epoch 22
+Loss: 115141.02890014648   Steps: 22000
+qd1_a:0 20.267
+qd1_b:0 19.7296
+qd2_a:0 19.8754
+qd2_b:0 20.1828
+qd3_a:0 20.0194
+qd3_b:0 19.9564
+qd4_a:0 20.0968
+qd4_b:0 19.8781
+100%|████████████████████████████████████████████████████| 10/10 [00:08<00:00,  1.14it/s]
+Validation: 0.09
+Optimizing for epoch 23
+Loss: 115144.84089660645   Steps: 23000
+qd1_a:0 20.2968
+qd1_b:0 19.6938
+qd2_a:0 19.9212
+qd2_b:0 20.1361
+qd3_a:0 19.9977
+qd3_b:0 19.9741
+qd4_a:0 20.0612
+qd4_b:0 19.9222
+100%|████████████████████████████████████████████████████| 10/10 [00:09<00:00,  1.07it/s]
+Validation: 0.086
+Optimizing for epoch 24
+Loss: 115145.41550445557   Steps: 24000
+qd1_a:0 20.2535
+qd1_b:0 19.7386
+qd2_a:0 19.907
+qd2_b:0 20.1468
+qd3_a:0 20.0212
+qd3_b:0 19.948
+qd4_a:0 20.0552
+qd4_b:0 19.9236
+100%|████████████████████████████████████████████████████| 10/10 [00:09<00:00,  1.05it/s]
+Validation: 0.106
+Optimizing for epoch 25
+Loss: 115143.1876373291   Steps: 25000
+qd1_a:0 20.2179
+qd1_b:0 19.7803
+qd2_a:0 19.8852
+qd2_b:0 20.1693
+qd3_a:0 19.9884
+qd3_b:0 19.9787
+qd4_a:0 20.0784
+qd4_b:0 19.9061
+100%|████████████████████████████████████████████████████| 10/10 [00:09<00:00,  1.02it/s]
+Validation: 0.109
+Optimizing for epoch 26
+Loss: 115139.57355499268   Steps: 26000
+qd1_a:0 20.2263
+qd1_b:0 19.7593
+qd2_a:0 19.8661
+qd2_b:0 20.1954
+qd3_a:0 19.9948
+qd3_b:0 19.9791
+qd4_a:0 20.0795
+qd4_b:0 19.8932
+100%|████████████████████████████████████████████████████| 10/10 [00:10<00:00,  1.02s/it]
+Validation: 0.109
+Optimizing for epoch 27
+Loss: 115146.22855377197   Steps: 27000
+qd1_a:0 20.165
+qd1_b:0 19.8157
+qd2_a:0 19.8796
+qd2_b:0 20.1836
+qd3_a:0 19.9706
+qd3_b:0 20.0134
+qd4_a:0 20.0489
+qd4_b:0 19.9151
+100%|████████████████████████████████████████████████████| 10/10 [00:10<00:00,  1.05s/it]
+Validation: 0.103
+Optimizing for epoch 28
+Loss: 115135.47286224365   Steps: 28000
+qd1_a:0 20.2014
+qd1_b:0 19.7687
+qd2_a:0 19.8483
+qd2_b:0 20.2189
+qd3_a:0 19.9174
+qd3_b:0 20.0713
+qd4_a:0 20.0061
+qd4_b:0 19.9481
+100%|████████████████████████████████████████████████████| 10/10 [00:10<00:00,  1.09s/it]
+Validation: 0.1
+Optimizing for epoch 29
+Loss: 115142.05434417725   Steps: 29000
+qd1_a:0 20.1885
+qd1_b:0 19.7892
+qd2_a:0 19.8465
+qd2_b:0 20.2339
+qd3_a:0 19.9331
+qd3_b:0 20.0582
+qd4_a:0 19.9993
+qd4_b:0 19.9581
+100%|████████████████████████████████████████████████████| 10/10 [00:11<00:00,  1.12s/it]
+Validation: 0.112
+Optimizing for epoch 30
+Loss: 115145.23816680908   Steps: 30000
+qd1_a:0 20.1779
+qd1_b:0 19.8013
+qd2_a:0 19.8662
+qd2_b:0 20.2131
+qd3_a:0 19.9756
+qd3_b:0 20.0171
+qd4_a:0 20.0109
+qd4_b:0 19.9434
+100%|████████████████████████████████████████████████████| 10/10 [00:11<00:00,  1.16s/it]
+Validation: 0.09
+Optimizing for epoch 31
+Loss: 115135.46534729004   Steps: 31000
+qd1_a:0 20.2091
+qd1_b:0 19.7702
+qd2_a:0 19.8202
+qd2_b:0 20.2575
+qd3_a:0 19.9838
+qd3_b:0 20.0071
+qd4_a:0 20.0171
+qd4_b:0 19.9353
+100%|████████████████████████████████████████████████████| 10/10 [00:11<00:00,  1.19s/it]
+Validation: 0.1
+Optimizing for epoch 32
+Loss: 115144.8426361084   Steps: 32000
+qd1_a:0 20.2068
+qd1_b:0 19.763
+qd2_a:0 19.8127
+qd2_b:0 20.2671
+qd3_a:0 19.9421
+qd3_b:0 20.0452
+qd4_a:0 20.0295
+qd4_b:0 19.9259
+100%|████████████████████████████████████████████████████| 10/10 [00:12<00:00,  1.22s/it]
+Validation: 0.106
+Optimizing for epoch 33
+Loss: 115164.23072814941   Steps: 33000
+qd1_a:0 20.2217
+qd1_b:0 19.7358
+qd2_a:0 19.8365
+qd2_b:0 20.2472
+qd3_a:0 19.9839
+qd3_b:0 20.0071
+qd4_a:0 20.0051
+qd4_b:0 19.9482
+100%|████████████████████████████████████████████████████| 10/10 [00:12<00:00,  1.25s/it]
+Validation: 0.103
+Optimizing for epoch 34
+Loss: 115143.71678161621   Steps: 34000
+qd1_a:0 20.203
+qd1_b:0 19.7573
+qd2_a:0 19.8473
+qd2_b:0 20.2354
+qd3_a:0 19.9736
+qd3_b:0 20.0164
+qd4_a:0 20.033
+qd4_b:0 19.9227
+100%|████████████████████████████████████████████████████| 10/10 [00:12<00:00,  1.28s/it]
+Validation: 0.109
+Optimizing for epoch 35
+Loss: 115140.49340820312   Steps: 35000
+qd1_a:0 20.2175
+qd1_b:0 19.7364
+qd2_a:0 19.8582
+qd2_b:0 20.2313
+qd3_a:0 19.956
+qd3_b:0 20.0313
+qd4_a:0 20.0597
+qd4_b:0 19.8943
+100%|████████████████████████████████████████████████████| 10/10 [00:13<00:00,  1.32s/it]
+Validation: 0.1
+Optimizing for epoch 36
+Loss: 115135.69213104248   Steps: 36000
+qd1_a:0 20.2482
+qd1_b:0 19.7074
+qd2_a:0 19.8064
+qd2_b:0 20.2798
+qd3_a:0 19.9627
+qd3_b:0 20.0181
+qd4_a:0 20.0917
+qd4_b:0 19.8648
+100%|████████████████████████████████████████████████████| 10/10 [00:13<00:00,  1.35s/it]
+Validation: 0.109
+Optimizing for epoch 37
+Loss: 115144.28589630127   Steps: 37000
+qd1_a:0 20.2462
+qd1_b:0 19.714
+qd2_a:0 19.8029
+qd2_b:0 20.2875
+qd3_a:0 19.9676
+qd3_b:0 20.0157
+qd4_a:0 20.1154
+qd4_b:0 19.8402
+100%|████████████████████████████████████████████████████| 10/10 [00:13<00:00,  1.39s/it]
+Validation: 0.09
+Optimizing for epoch 38
+Loss: 115147.59535217285   Steps: 38000
+qd1_a:0 20.2269
+qd1_b:0 19.7255
+qd2_a:0 19.8262
+qd2_b:0 20.2505
+qd3_a:0 19.9375
+qd3_b:0 20.038
+qd4_a:0 20.1187
+qd4_b:0 19.8306
+100%|████████████████████████████████████████████████████| 10/10 [00:14<00:00,  1.43s/it]
+Validation: 0.106
+Optimizing for epoch 39
+Loss: 115226.69622039795   Steps: 39000
+qd1_a:0 20.1768
+qd1_b:0 19.7802
+qd2_a:0 19.8503
+qd2_b:0 20.2283
+qd3_a:0 19.9172
+qd3_b:0 20.0586
+qd4_a:0 20.1148
+qd4_b:0 19.8383
+100%|████████████████████████████████████████████████████| 10/10 [00:14<00:00,  1.46s/it]
+Validation: 0.1053
+Optimizing for epoch 40
+Loss: 115165.11473083496   Steps: 40000
+qd1_a:0 20.1913
+qd1_b:0 19.7625
+qd2_a:0 19.84
+qd2_b:0 20.2425
+qd3_a:0 19.9491
+qd3_b:0 20.0265
+qd4_a:0 20.0739
+qd4_b:0 19.8681
+100%|████████████████████████████████████████████████████| 10/10 [00:14<00:00,  1.49s/it]
+Validation: 0.1014
 
 
