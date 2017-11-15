@@ -8,8 +8,8 @@ from tqdm import tqdm
 
 
 def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
-  fc1 = tf.nn.relu(tf.matmul(X, w1) + b1)
-  fc2 = tf.nn.relu(tf.matmul(fc1, w2) + b2)
+  fc1 = tf.tanh(tf.matmul(X, w1) + b1)
+  fc2 = tf.tanh(tf.matmul(fc1, w2) + b2)
   # fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
   # fc4 = tf.matmul(fc3, w4) + b4
   fc3 = tf.matmul(fc2, w3) + b3
