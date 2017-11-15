@@ -61,27 +61,27 @@ class MnistMLP(object):
     # Q distribution
     self.qw1 = Normal(
         loc=tf.Variable(tf.zeros(self.w1_shape), name='qw1_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.zeros(self.w1_shape), name='qw1_scale')))
+        scale=tf.nn.softplus(tf.Variable(tf.ones(self.w1_shape), name='qw1_scale')))
     self.qb1 = Normal(
         loc=tf.Variable(tf.zeros([self.w1_shape[-1]]), name='qb1_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.zeros([self.w1_shape[-1]]), name='qb1_scale')))
+            tf.Variable(tf.ones([self.w1_shape[-1]]), name='qb1_scale')))
 
     self.qw2 = Normal(
         loc=tf.Variable(tf.zeros(self.w2_shape), name='qw2_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.zeros(self.w2_shape), name='qw2_scale')))
+        scale=tf.nn.softplus(tf.Variable(tf.ones(self.w2_shape), name='qw2_scale')))
     self.qb2 = Normal(
         loc=tf.Variable(tf.zeros([self.w2_shape[-1]]), name='qb2_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.zeros([self.w2_shape[-1]]), name='qb2_scale')))
+            tf.Variable(tf.ones([self.w2_shape[-1]]), name='qb2_scale')))
 
     self.qw3 = Normal(
         loc=tf.Variable(tf.zeros(self.w3_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.zeros(self.w3_shape))))
+        scale=tf.nn.softplus(tf.Variable(tf.ones(self.w3_shape))))
     self.qb3 = Normal(
         loc=tf.Variable(tf.zeros([self.w3_shape[-1]])),
         scale=tf.nn.softplus(
-            tf.Variable(tf.zeros([self.w3_shape[-1]]))))
+            tf.Variable(tf.ones([self.w3_shape[-1]]))))
 
     self.qw4 = Normal(
         loc=tf.Variable(tf.random_normal(self.w4_shape)),
