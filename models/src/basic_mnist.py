@@ -44,7 +44,7 @@ class MnistMLP(object):
         loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]))
 
     self.w3 = Normal(
-        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape) * scale)
+        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape))
     self.b3 = Normal(
         loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]))
 
