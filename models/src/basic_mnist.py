@@ -99,8 +99,9 @@ class MnistMLP(object):
         # self.w4: self.qw4, self.b4: self.qb4,
       }, data={self.categorical: self.Y_placeholder})
 
-    self.inference.initialize(n_iter=self.iterations, 
-        scale={self.categorical: mnist.train.num_examples / self.batch_size})
+    self.inference.initialize()
+    # self.inference.initialize(n_iter=self.iterations, 
+    #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
 
   def optimize(self, mnist):
     for _ in range(self.inference.n_iter):
