@@ -13,7 +13,7 @@ def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
   # fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
   # fc4 = tf.matmul(fc3, w4) + b4
   fc3 = tf.matmul(fc2, w3) + b3
-  return fc2
+  return fc3
 
 
 class MnistMLP(object):
@@ -33,7 +33,7 @@ class MnistMLP(object):
     self.w3_shape = (64, 10)
     self.w4_shape = (16, 10)
 
-    scale = 1 / math.sqrt(784*392 + 392*64)
+    scale = 1 / math.sqrt(784*392)
 
     self.w1 = Normal(loc=tf.zeros(self.w1_shape), scale=tf.ones(self.w1_shape))
     self.b1 = Normal(
@@ -44,7 +44,7 @@ class MnistMLP(object):
         loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]))
 
     self.w3 = Normal(
-        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape))
+        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape) * scale)
     self.b3 = Normal(
         loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]) * scale)
 
