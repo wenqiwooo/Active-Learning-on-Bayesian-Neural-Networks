@@ -44,9 +44,9 @@ class MnistMLP(object):
         loc=tf.zeros(self.w2_shape[-1]), scale=tf.ones(self.w2_shape[-1]))
 
     self.w3 = Normal(
-        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape))
+        loc=tf.zeros(self.w3_shape), scale=tf.ones(self.w3_shape) * scale)
     self.b3 = Normal(
-        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]))
+        loc=tf.zeros(self.w3_shape[-1]), scale=tf.ones(self.w3_shape[-1]) * scale)
 
     self.w4 = Normal(
         loc=tf.zeros(self.w4_shape), scale=tf.ones(self.w4_shape))
@@ -75,12 +75,12 @@ class MnistMLP(object):
             tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_scale')))
 
     self.qw3 = Normal(
-        loc=tf.Variable(tf.random_normal(self.w3_shape)),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape))))
+        loc=tf.Variable(tf.random_normal(self.w3_shape) * scale),
+        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape) * scale)))
     self.qb3 = Normal(
-        loc=tf.Variable(tf.random_normal([self.w3_shape[-1]])),
+        loc=tf.Variable(tf.random_normal([self.w3_shape[-1]]) * scale),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w3_shape[-1]]))))
+            tf.Variable(tf.random_normal([self.w3_shape[-1]]) * scale)))
 
     self.qw4 = Normal(
         loc=tf.Variable(tf.random_normal(self.w4_shape)),
@@ -113,11 +113,11 @@ class MnistMLP(object):
           self.Y_placeholder: Y_batch
         })
       self.inference.print_progress(info_dict)
-      variables_names =['qw1_loc:0', 'qw1_scale:0']
-      sess = ed.get_session()
-      qw1_loc, qw1_scale = sess.run(variables_names)
-      qw1_scale = np.log(np.exp(qw1_scale) + 1)
-      print(np.amax(qw1_loc / qw1_scale))
+      # variables_names =['qw1_loc:0', 'qw1_scale:0']
+      # sess = ed.get_session()
+      # qw1_loc, qw1_scale = sess.run(variables_names)
+      # qw1_scale = np.log(np.exp(qw1_scale) + 1)
+      # print(np.amax(qw1_loc / qw1_scale))
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
