@@ -66,11 +66,11 @@ class C10BetaDropout(object):
         initializer=tf.constant_initializer(0.))
 
     # Prior distribution
-    self.d = Beta(4., 2.)
+    self.d = Beta(20., 20.)
 
     self.qd = Beta(
-        tf.Variable(4., tf.float32, name='qd_a'), 
-        tf.Variable(2., tf.float32, name='qd_b'))
+        tf.Variable(20., tf.float32, name='qd_a'), 
+        tf.Variable(20., tf.float32, name='qd_b'))
 
     self.nn = lenet_dropout(
         self.w1, self.b1, self.w2, self.b2, 
