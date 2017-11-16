@@ -309,6 +309,62 @@ def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=10
         unobserved_y = np.delete(unobserved_y, top_k, 0)
 
 
+def active_learn_max_posterior_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+    """
+    Starts an active learning process to train the model using the mean squared
+    error criterion, a.k.a our variance.
+    """
+    for i in range(iters):
+        print(f'Running active learning iteration {i+1}')
+
+        _, var = model.sample(unobserved_x)
+
+        # Get the data points with top k variance values
+        top_k = np.argpartition(np.sum(var, axis=1), -k)[-k:]
+
+        # Add that to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, top_k, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, top_k, axis=0), axis=0)
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Optimize the model again
+        model.init_model()
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, top_k, 0)
+        unobserved_y = np.delete(unobserved_y, top_k, 0)
+
+
+def active_learn_var_ratio(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+    """
+    Starts an active learning process to train the model using the maximum myopic
+    entropy criterion
+    """
+    for i in range(iters):
+        print(f'Running active learning iteration {i+1}')
+
+        pred, _ = model.sample(unobserved_x)
+
+        # Get the data points with top k variance values
+        top_k = np.argpartition(1 - np.amax(pred, axis=1), -k)[-k:]
+
+        # Add that to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, top_k, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, top_k, axis=0), axis=0)
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Optimize the model again
+        model.init_model()
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, top_k, 0)
+        unobserved_y = np.delete(unobserved_y, top_k, 0)
+
+
 def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
     """
     Starts an active learning process to train the model using the maximum
@@ -397,10 +453,17 @@ def train(initial, unobserved, samples, datasize):
     iters = datasize // samples
 
     # Active learning
+    # active_learn_functions = {
+    #     'Random': active_learn_random,
+    #     'MSE': active_learn_mse,
+    #     'Max Entropy': active_learn_max_entropy,
+    # }
     active_learn_functions = {
         'Random': active_learn_random,
-        'MSE': active_learn_mse,
-        'Max Entropy': active_learn_max_entropy,
+        # 'Not really MSE': active_learn_mse,
+        'Max Posterior Entropy': active_learn_max_posterior_entropy,
+        'Max Cross Entropy': active_learn_max_entropy,
+        'Max Var Ratio': active_learn_var_ratio,
     }
 
     for name, f in active_learn_functions.items():
