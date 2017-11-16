@@ -29,7 +29,7 @@ def lenet_dropout(w1, b1, w2, b2, w3, b3, w4, b4, d, x):
   h = tf.nn.max_pool(h, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME')
   h = tf.nn.bias_add(tf.nn.conv2d(h, w2, (1, 1, 1, 1), 'SAME'), b2)
   h = tf.nn.max_pool(h, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME')
-  h = tf.reshape(h, (-1, 7*7*50))
+  h = tf.reshape(h, (-1, 8*8*50))
   h = tf.matmul(h, w3) + b3
   h = tf.nn.relu(h)
   h = tf.nn.dropout(h, d)
