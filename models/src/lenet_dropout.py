@@ -80,6 +80,12 @@ class MnistBetaDropout(object):
     #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
 
   def optimize(self, mnist):
+    variables_names =['qd_a:0', 'qd_b:0']
+    sess = ed.get_session()
+
+    qd_a, qd_b = sess.run(variables_names)
+    print('Prior >> alpha: {}   beta: {}'.format(qd_a, qd_b))
+
     for _ in range(self.inference.n_iter):
       X_batch, Y_batch = mnist.train.next_batch(self.batch_size)
       info_dict = self.inference.update(feed_dict={
@@ -87,11 +93,9 @@ class MnistBetaDropout(object):
           self.y: Y_batch
         })
       self.inference.print_progress(info_dict)
-      # variables_names =['qw1_loc:0', 'qw1_scale:0']
-      # sess = ed.get_session()
-      # qw1_loc, qw1_scale = sess.run(variables_names)
-      # qw1_scale = np.log(np.exp(qw1_scale) + 1)
-      # print(np.amax(qw1_loc / qw1_scale))
+
+    qd_a, qd_b = sess.run(variables_names)
+    print('Posterior >> alpha: {}   beta: {}'.format(qd_a, qd_b))
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
