@@ -171,7 +171,7 @@ class BayesianCNN(object):
             self.load_model(self._saved)
         else:
             model = Sequential()
-            model.add(Dropout(0.5))
+            model.add(Dropout(0.5, input_shape=input_shape))
             model.add(Conv2D(32, kernel_size=(3, 3),
                             activation='relu',
                             input_shape=input_shape))
