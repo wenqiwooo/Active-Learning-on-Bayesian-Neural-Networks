@@ -58,9 +58,9 @@ class C10BetaDropout(object):
         initializer=tf.constant_initializer(0.))
     self.w3 = tf.get_variable('w3', (8*8*50, 500), dtype=tf.float32, 
         initializer=tf.contrib.layers.xavier_initializer())
-    self.b3 = tf.get_variable('b3', (500, ), dtype=tf.float32,
+    self.b3 = tf.get_variable('b3', (1000, ), dtype=tf.float32,
         initializer=tf.constant_initializer(0.))
-    self.w4 = tf.get_variable('w4', (500, 10), dtype=tf.float32, 
+    self.w4 = tf.get_variable('w4', (1000, 10), dtype=tf.float32, 
         initializer=tf.contrib.layers.xavier_initializer())
     self.b4 = tf.get_variable('b4', (10, ), dtype=tf.float32,
         initializer=tf.constant_initializer(0.))
