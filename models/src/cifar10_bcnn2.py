@@ -32,7 +32,7 @@ def lenet_dropout(w1, b1, w2, b2, w3, b3, w4, b4, d, x):
   h = tf.reshape(h, (-1, 8*8*50))
   h = tf.matmul(h, w3) + b3
   h = tf.nn.relu(h)
-  h = tf.nn.dropout(h, 0.5)
+  h = tf.nn.dropout(h, d)
   h = tf.matmul(h, w4) + b4
   return h
 
@@ -80,11 +80,11 @@ class C10BetaDropout(object):
     self.categorical = Categorical(self.nn)
 
     self.inference = ed.KLqp({
-        # self.d: self.qd,
+        self.d: self.qd,
       }, data={self.categorical: self.y})
 
     self.lr = tf.train.exponential_decay(
-        1e-3, self.global_step, 10000, 0.95, staircase=True)
+        1e-4, self.global_step, 10000, 0.95, staircase=True)
 
     self.optimizer = tf.train.AdamOptimizer(self.lr)
 
