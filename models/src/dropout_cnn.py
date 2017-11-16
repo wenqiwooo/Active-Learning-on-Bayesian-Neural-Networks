@@ -4,6 +4,8 @@ import datetime
 
 import click
 import numpy as np
+np.random.seed(42)
+
 from scipy.special import gamma,psi
 from scipy.linalg import det
 from numpy import pi
@@ -35,6 +37,7 @@ class BayesianCNN(object):
         """
         Initializes the Keras model.
         """
+        self._saved = None
         self._loss = loss
         self._optimizer = optimizer
         self.init_model()
@@ -53,7 +56,7 @@ class BayesianCNN(object):
         Returns: None
         """
 
-        self._model.fit(x, y, epochs=epochs, batch_size=batch_size)
+        self._model.fit(x, y, epochs=epochs, batch_size=batch_size, verbose=0)
 
     def optimize_batch(self, batch_x, batch_y):
         """
@@ -163,23 +166,28 @@ class BayesianCNN(object):
         print('Saved trained model at %s ' % model_path)
 
     def init_model(self):
-        model = Sequential()
-        model.add(Conv2D(32, kernel_size=(3, 3),
-                         activation='relu',
-                         input_shape=input_shape))
-        model.add(Conv2D(64, (3, 3), activation='relu'))
-        model.add(MaxPooling2D(pool_size=(2, 2)))
-        model.add(Dropout(0.25))
-        model.add(Flatten())
-        model.add(Dense(128, activation='relu'))
-        model.add(Dropout(0.5))
-        model.add(Dense(num_classes, activation='softmax'))
+        if self._saved:
+            K.clear_session()
+            self.load_model(self._saved)
+        else:
+            model = Sequential()
+            model.add(Conv2D(32, kernel_size=(3, 3),
+                            activation='relu',
+                            input_shape=input_shape))
+            model.add(Conv2D(64, (3, 3), activation='relu'))
+            model.add(MaxPooling2D(pool_size=(2, 2)))
+            model.add(Flatten())
+            model.add(Dropout(0.5))
+            model.add(Dense(128, activation='relu'))
+            model.add(Dense(num_classes, activation='softmax'))
 
-        model.compile(loss=self._loss,
-                      optimizer=self._optimizer,
-                      metrics=['accuracy'])
+            model.compile(loss=self._loss,
+                        optimizer=self._optimizer,
+                        metrics=['accuracy'])
 
-        self._model = model
+            self._model = model
+            self.save_model('saved_models', 'init.h5')
+            self._saved = './saved_models/init.h5'
 
 
 def sum_of_mean_square_errors(var):
@@ -331,56 +339,6 @@ def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, 
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
 
-def active_learn_mutual_information(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
-    """
-    Starts an active learning process to train the model using the maximum
-    mutual information criterion.
-    """
-    for i in range(iters):
-        print(f'Running active learning iteration {i+1}')
-
-        max_mi = -np.inf
-        idx = None
-
-        # Reduce the sampling of points to just 10 samples
-        for _ in range(10):
-            # Naive selection: just choosing ONE data point
-            j = np.random.randint(low=0, high=len(unobserved_x))
-            pred = model.predict(np.take(unobserved_x, [0], axis=0))
-
-            # Add prediction to observed data
-            o_y = np.append(init_y, pred, axis=0)
-
-            # Remove from unobserved data
-            u_x = np.delete(unobserved_x, j, 0)
-
-            # Calculate mutual information
-            unobserved_preds = model.predict(u_x)
-
-            print(o_y.shape)
-            print(unobserved_preds.shape)
-
-            # TODO: This part is not done yet.
-            mi = entropy(unobserved_preds) - entropy(unobserved_preds)
-
-            if mi > max_mi:
-                idx = j
-                max_mi = mi
-
-        print(f'Total data used so far: {init_x.shape[0]}')
-
-        # Add best data point to our training data
-        init_x = np.append(init_x, np.take(unobserved_x, [idx], axis=0), axis=0)
-        init_y = np.append(init_y, np.take(unobserved_y, [idx], axis=0), axis=0)
-
-        # Optimize the model again
-        model.optimize(init_x, init_y)
-
-        # Remove from unobserved data
-        unobserved_x = np.delete(unobserved_x, idx, 0)
-        unobserved_y = np.delete(unobserved_y, idx, 0)
-
-
 def load_data():
     # the data, shuffled and split between train and test sets
     (x_train, y_train), (x_test, y_test) = mnist.load_data()
@@ -447,9 +405,7 @@ def train(initial, unobserved, samples, datasize):
         print(f'Running experiments for {name}')
         print('==============================')
 
-        # Initialize a new model
-        m = BayesianCNN(keras.losses.kullback_leibler_divergence,
-                        keras.optimizers.Adadelta())
+        m.init_model()
 
         f(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=samples)
 
