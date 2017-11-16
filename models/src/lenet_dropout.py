@@ -21,7 +21,7 @@ def lenet_dropout(w1, b1, w2, b2, w3, b3, w4, b4, d, x):
 
 
 class MnistBetaDropout(object):
-  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=10000, 
+  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=5000, 
       batch_size=100):
     self.input_dim = input_dim
     self.output_dim = output_dim
