@@ -171,14 +171,21 @@ class BayesianCNN(object):
             self.load_model(self._saved)
         else:
             model = Sequential()
-            model.add(Conv2D(32, kernel_size=(3, 3),
-                            activation='relu',
+
+            # Conv1
+            model.add(Conv2D(20,
+                            kernel_size=(5, 5),
                             input_shape=input_shape))
-            model.add(Conv2D(64, (3, 3), activation='relu'))
             model.add(MaxPooling2D(pool_size=(2, 2)))
+
+            # Conv2
+            model.add(Conv2D(50, (5, 5)))
+            model.add(MaxPooling2D(pool_size=(2, 2)))
+
+            # Fully connected
             model.add(Flatten())
+            model.add(Dense(500, activation='relu'))
             model.add(Dropout(0.5))
-            model.add(Dense(128, activation='relu'))
             model.add(Dense(num_classes, activation='softmax'))
 
             model.compile(loss=self._loss,
@@ -186,8 +193,6 @@ class BayesianCNN(object):
                         metrics=['accuracy'])
 
             self._model = model
-            self.save_model('saved_models', 'init.h5')
-            self._saved = './saved_models/init.h5'
 
 
 def sum_of_mean_square_errors(var):
