@@ -45,7 +45,7 @@ class C10BetaDropout(object):
 
     self.global_step = tf.Variable(
       initial_value=0, name='global_step', trainable=False)
-    self.x = tf.placeholder(tf.float32, shape=(None, 784))
+    self.x = tf.placeholder(tf.float32, shape=(None, 32, 32, 3))
     self.y = tf.placeholder(tf.int32, shape=(None,))
 
     self.w1 = tf.get_variable('w1', (5, 5, 3, 20), dtype=tf.float32, 
@@ -127,7 +127,7 @@ class C10BetaDropout(object):
         acc = self.validate(X_test[:1000], Y_test[:1000], batch_size, n_samples)
         print('Validation: {}'.format(acc))
         accuracies.append(acc)
-    
+
     print(qd_a_list)
     print(qd_b_list)
 
