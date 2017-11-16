@@ -16,7 +16,6 @@ def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
   # fc3 = tf.matmul(fc2, w3) + b3
   return h
 
-
 class MnistMLP(object):
   def __init__(self, mnist, input_dim=784, output_dim=10, iterations=10000, 
       batch_size=100):
@@ -99,9 +98,8 @@ class MnistMLP(object):
         # self.w4: self.qw4, self.b4: self.qb4,
       }, data={self.categorical: self.Y_placeholder})
 
-    self.inference.initialize()
-    # self.inference.initialize(n_iter=self.iterations, 
-    #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
+    self.inference.initialize(n_iter=self.iterations, 
+        scale={self.categorical: mnist.train.num_examples / self.batch_size})
 
   def optimize(self, mnist):
     for _ in range(self.inference.n_iter):

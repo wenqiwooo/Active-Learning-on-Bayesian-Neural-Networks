@@ -22,7 +22,7 @@ def mini_batch(batch_size, x, y=None, shuffle=False):
       yield batch_x, batch_y
     else:
       yield batch_x
-
+      
 
 def DropoutCNN(f1, b1, f2, b2, fc_w1, fc_b1, fc_w2, fc_b2, fc_w3, fc_b3, 
     d1, d2, d3, d4, X):
