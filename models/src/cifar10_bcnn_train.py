@@ -9,7 +9,7 @@ from tqdm import tqdm
 from download import maybe_download_and_extract
 from cifar10 import load_training_data, load_test_data
 from keras.datasets import cifar10
-from cifar10_bcnn2 import Cifar10BCNN, BayesianDropout
+from cifar10_bcnn2 import Cifar10BCNN, BayesianDropout, C10BetaDropout
 from cifar10_cnn import Cifar10CNN
 
 
@@ -97,7 +97,7 @@ def main(_):
   Y_test = np.squeeze(Y_test)
 
   with tf.Session() as sess:
-    model = BayesianDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
+    model = C10BetaDropout(FLAGS.epochs, len(X_train), FLAGS.batch_size)
     saver = tf.train.Saver()
     try: 
       print('Restoring from checkpoint')
@@ -107,7 +107,7 @@ def main(_):
       sess.run(tf.global_variables_initializer())
     model.optimize(
         X_train, Y_train, FLAGS.epochs, FLAGS.batch_size,
-        X_test, Y_test, 10, saver=saver)
+        X_test, Y_test, 20, saver=saver)
 
     # model = Cifar10CNN()
     # sess.run(tf.global_variables_initializer())
