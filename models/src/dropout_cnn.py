@@ -282,6 +282,9 @@ def active_learn_random(model, init_x, init_y, unobserved_x, unobserved_y, iters
         unobserved_x = np.delete(unobserved_x, idx, 0)
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
+        if evaluate:
+            evaluate()
+
 
 def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
     """
@@ -310,6 +313,9 @@ def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=10
         unobserved_x = np.delete(unobserved_x, top_k, 0)
         unobserved_y = np.delete(unobserved_y, top_k, 0)
 
+        if evaluate:
+            evaluate()
+
 
 def active_learn_var_ratio(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
     """
@@ -337,6 +343,9 @@ def active_learn_var_ratio(model, init_x, init_y, unobserved_x, unobserved_y, it
         # Remove from unobserved data
         unobserved_x = np.delete(unobserved_x, top_k, 0)
         unobserved_y = np.delete(unobserved_y, top_k, 0)
+
+        if evaluate:
+            evaluate()
 
 
 def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
@@ -437,16 +446,16 @@ def train(initial, unobserved, samples, datasize):
         'Max Entropy': active_learn_max_entropy,
     }
 
+    def evaluate():
+        _, accuracy = m.evaluate(x_test, y_test)
+        print(f'Accuracy: {accuracy}')
+
     for name, f in active_learn_functions.items():
         print('==============================')
         print(f'Running experiments for {name}')
         print('==============================')
 
         m.init_model()
-
-        def evaluate():
-            _, accuracy = m.evaluate(x_test, y_test)
-            print(f'Accuracy: {accuracy}')
 
         f(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=samples, evaluate=evaluate)
 
