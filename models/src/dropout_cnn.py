@@ -206,7 +206,7 @@ def sum_of_mean_square_errors(var):
     Returns: criterion value
     """
 
-    return np.apply_along_axis(lambda x: np.trace(np.outer(x, x)), 1, var)
+    return np.sum(var, axis=1)
 
 
 def nearest_distances(X, k=1):
@@ -255,7 +255,7 @@ def entropy(X, k=1):
             + np.log(volume_unit_ball) + psi(n) - psi(k))
 
 
-def active_learn_random(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+def active_learn_random(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
     """
     Starts an active learning process to train the model using the mean squared
     error criterion, a.k.a our variance.
@@ -283,7 +283,7 @@ def active_learn_random(model, init_x, init_y, unobserved_x, unobserved_y, iters
         unobserved_y = np.delete(unobserved_y, idx, 0)
 
 
-def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
     """
     Starts an active learning process to train the model using the mean squared
     error criterion, a.k.a our variance.
@@ -311,7 +311,35 @@ def active_learn_mse(model, init_x, init_y, unobserved_x, unobserved_y, iters=10
         unobserved_y = np.delete(unobserved_y, top_k, 0)
 
 
-def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10):
+def active_learn_var_ratio(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
+    """
+    Starts an active learning process to train the model using the maximum myopic
+    entropy criterion
+    """
+    for i in range(iters):
+        print(f'Running active learning iteration {i+1}')
+
+        pred, _ = model.sample(unobserved_x)
+
+        # Get the data points with top k variance values
+        top_k = np.argpartition(1 - np.amax(pred, axis=1), -k)[-k:]
+
+        # Add that to our training data
+        init_x = np.append(init_x, np.take(unobserved_x, top_k, axis=0), axis=0)
+        init_y = np.append(init_y, np.take(unobserved_y, top_k, axis=0), axis=0)
+
+        print(f'Total data used so far: {init_x.shape[0]}')
+
+        # Optimize the model again
+        model.init_model()
+        model.optimize(init_x, init_y)
+
+        # Remove from unobserved data
+        unobserved_x = np.delete(unobserved_x, top_k, 0)
+        unobserved_y = np.delete(unobserved_y, top_k, 0)
+
+
+def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, iters=100, k=10, evaluate=None):
     """
     Starts an active learning process to train the model using the maximum
     entropy criterion
@@ -342,6 +370,9 @@ def active_learn_max_entropy(model, init_x, init_y, unobserved_x, unobserved_y, 
         # Remove from unobserved data
         unobserved_x = np.delete(unobserved_x, idx, 0)
         unobserved_y = np.delete(unobserved_y, idx, 0)
+
+        if evaluate:
+            evaluate()
 
 
 def load_data():
@@ -401,7 +432,8 @@ def train(initial, unobserved, samples, datasize):
     # Active learning
     active_learn_functions = {
         'Random': active_learn_random,
-        'MSE': active_learn_mse,
+        'Max Mean Var': active_learn_mse,
+        'Max Var Ratios': active_learn_var_ratio,
         'Max Entropy': active_learn_max_entropy,
     }
 
@@ -412,7 +444,11 @@ def train(initial, unobserved, samples, datasize):
 
         m.init_model()
 
-        f(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=samples)
+        def evaluate():
+            _, accuracy = m.evaluate(x_test, y_test)
+            print(f'Accuracy: {accuracy}')
+
+        f(m, init_x, init_y, unobserved_x, unobserved_y, iters=iters, k=samples, evaluate=evaluate)
 
         # Evaluate our model against test set!
         loss, accuracy = m.evaluate(x_test, y_test)
