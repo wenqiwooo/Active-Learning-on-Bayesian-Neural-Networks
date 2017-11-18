@@ -184,3 +184,7 @@ class BayesianCNN(object):
                           metrics=['accuracy'])
 
             self._model = model
+
+            # To reinitialize the model with the same initial weights later
+            self._saved = './saved_models/init.h5'
+            self.save_model('saved_models', 'init.h5')
