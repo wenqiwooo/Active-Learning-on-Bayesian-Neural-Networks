@@ -1,7 +1,7 @@
 import tensorflow as tf
 from tensorflow.examples.tutorials.mnist import input_data
 from basic_mnist import MnistModel, MnistCNN, MnistMLP, MnistPlain
-from lenet_dropout import MnistBetaDropout
+from mnist_bayesian import MnistBetaDropout
 
 
 flags = tf.app.flags
@@ -16,8 +16,6 @@ def main(_):
     sess.run(tf.global_variables_initializer())
     model.optimize(mnist)
     acc = model.validate(mnist, 30)
-    # model.optimize(sess, mnist)
-    # acc = model.validate(sess, mnist)
     print(acc)
 
 

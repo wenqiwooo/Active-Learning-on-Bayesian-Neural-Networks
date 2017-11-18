@@ -7,14 +7,126 @@ from edward.models import Categorical, Normal
 from tqdm import tqdm
 
 
+def lenet_dropout(w1, b1, w2, b2, w3, b3, w4, b4, d, x):
+  h = tf.reshape(x, (-1, 28, 28, 1))
+  h = tf.nn.bias_add(tf.nn.conv2d(h, w1, (1, 1, 1, 1), 'SAME'), b1)
+  h = tf.nn.max_pool(h, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME')
+  h = tf.nn.bias_add(tf.nn.conv2d(h, w2, (1, 1, 1, 1), 'SAME'), b2)
+  h = tf.nn.max_pool(h, (1, 2, 2, 1), (1, 2, 2, 1), 'SAME')
+  h = tf.reshape(h, (-1, 7*7*50))
+  h = tf.matmul(h, w3) + b3
+  h = tf.nn.relu(h)
+  h = tf.nn.dropout(h, d)
+  h = tf.matmul(h, w4) + b4
+  return h
+
+
+class MnistBetaDropout(object):
+  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=5000, 
+      batch_size=100):
+    self.input_dim = input_dim
+    self.output_dim = output_dim
+    self.iterations = iterations
+    self.batch_size = batch_size
+
+    self.global_step = tf.Variable(
+      initial_value=0, name='global_step', trainable=False)
+    self.x = tf.placeholder(tf.float32, shape=(None, 784))
+    self.y = tf.placeholder(tf.int32, shape=(None,))
+
+    self.w1 = tf.get_variable('w1', (5, 5, 1, 20), dtype=tf.float32, 
+        initializer=tf.contrib.layers.xavier_initializer())
+    self.b1 = tf.get_variable('b1', (20, ), dtype=tf.float32,
+        initializer=tf.constant_initializer(0.))
+    self.w2 = tf.get_variable('w2', (5, 5, 20, 50), dtype=tf.float32, 
+        initializer=tf.contrib.layers.xavier_initializer())
+    self.b2 = tf.get_variable('b2', (50, ), dtype=tf.float32,
+        initializer=tf.constant_initializer(0.))
+    self.w3 = tf.get_variable('w3', (7*7*50, 500), dtype=tf.float32, 
+        initializer=tf.contrib.layers.xavier_initializer())
+    self.b3 = tf.get_variable('b3', (500, ), dtype=tf.float32,
+        initializer=tf.constant_initializer(0.))
+    self.w4 = tf.get_variable('w4', (500, 10), dtype=tf.float32, 
+        initializer=tf.contrib.layers.xavier_initializer())
+    self.b4 = tf.get_variable('b4', (10, ), dtype=tf.float32,
+        initializer=tf.constant_initializer(0.))
+
+    # Prior distribution
+    self.d = Beta(20., 20.)
+
+    self.qd = Beta(
+        tf.Variable(20., tf.float32, name='qd_a'), 
+        tf.Variable(20., tf.float32, name='qd_b'))
+
+    self.nn = lenet_dropout(
+        self.w1, self.b1, self.w2, self.b2, 
+        self.w3, self.b3, self.w4, self.b4, 
+        self.d, self.x)
+
+    self.categorical = Categorical(self.nn)
+
+    self.inference = ed.KLqp({
+        self.d: self.qd,
+      }, data={self.categorical: self.y})
+
+    self.lr = tf.train.exponential_decay(
+        1e-3, self.global_step, 10000, 0.95, staircase=True)
+
+    self.optimizer = tf.train.AdamOptimizer(self.lr)
+
+    self.inference.initialize(
+        n_iter=self.iterations, optimizer=self.optimizer, 
+        global_step=self.global_step)
+    # self.inference.initialize(n_iter=self.iterations, 
+    #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
+
+  def optimize(self, mnist):
+    variables_names =['qd_a:0', 'qd_b:0']
+    sess = ed.get_session()
+
+    qd_a, qd_b = sess.run(variables_names)
+    print('Prior >> alpha: {}   beta: {}'.format(qd_a, qd_b))
+
+    for _ in range(self.inference.n_iter):
+      X_batch, Y_batch = mnist.train.next_batch(self.batch_size)
+      info_dict = self.inference.update(feed_dict={
+          self.x: X_batch,
+          self.y: Y_batch
+        })
+      self.inference.print_progress(info_dict)
+
+    qd_a, qd_b = sess.run(variables_names)
+    print('Posterior >> alpha: {}   beta: {}'.format(qd_a, qd_b))
+
+  def validate(self, mnist, n_samples):
+    X_test = mnist.test.images
+    Y_test = mnist.test.labels
+    probs = []
+    for _ in range(n_samples):
+      prob = tf.nn.softmax(self.realize_network(X_test))
+      probs.append(prob.eval())
+    accuracies = []
+    for prob in probs:
+      pred = np.argmax(prob, axis=1)
+      acc = (pred == Y_test).mean() * 100
+      accuracies.append(acc)
+    return accuracies
+
+  def realize_network(self, x):
+    sd = self.qd.sample()
+    return tf.nn.softmax(lenet_dropout(
+        self.w1, self.b1, self.w2, self.b2, 
+        self.w3, self.b3, self.w4, self.b4, 
+        sd, x))
+
+
 def MLP(w1, b1, w2, b2, w3, b3, w4, b4, X):
   h = tf.nn.relu(tf.matmul(X, w1) + b1)
   h = tf.nn.relu(tf.matmul(h, w2) + b2)
-  h = tf.matmul(h, w3) + b3
-  # fc3 = tf.nn.relu(tf.matmul(fc2, w3) + b3)
-  # fc4 = tf.matmul(fc3, w4) + b4
-  # fc3 = tf.matmul(fc2, w3) + b3
+  h = tf.nn.relu(tf.matmul(h, w3) + b3)
+  h = tf.nn.relu(tf.matmul(h, w4) + b4)
   return h
+
 
 class MnistMLP(object):
   def __init__(self, mnist, input_dim=784, output_dim=10, iterations=10000, 
@@ -61,41 +173,49 @@ class MnistMLP(object):
     # Q distribution
     self.qw1 = Normal(
         loc=tf.Variable(tf.random_normal(self.w1_shape), name='qw1_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w1_shape), name='qw1_scale')))
+        scale=tf.nn.softplus(
+            tf.Variable(tf.random_normal(self.w1_shape), name='qw1_scale')))
     self.qb1 = Normal(
         loc=tf.Variable(tf.random_normal([self.w1_shape[-1]]), name='qb1_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w1_shape[-1]]), name='qb1_scale')))
+            tf.Variable(
+                tf.random_normal([self.w1_shape[-1]]), name='qb1_scale')))
 
     self.qw2 = Normal(
         loc=tf.Variable(tf.random_normal(self.w2_shape), name='qw2_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w2_shape), name='qw2_scale')))
+        scale=tf.nn.softplus(tf.Variable(
+            tf.random_normal(self.w2_shape), name='qw2_scale')))
     self.qb2 = Normal(
         loc=tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w2_shape[-1]]), name='qb2_scale')))
+            tf.Variable(
+                tf.random_normal([self.w2_shape[-1]]), name='qb2_scale')))
 
     self.qw3 = Normal(
         loc=tf.Variable(tf.random_normal(self.w3_shape), name='qw3_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w3_shape), name='qw3_scale')))
+        scale=tf.nn.softplus(tf.Variable(
+            tf.random_normal(self.w3_shape), name='qw3_scale')))
     self.qb3 = Normal(
         loc=tf.Variable(tf.random_normal([self.w3_shape[-1]]), name='qb3_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w3_shape[-1]]), name='qb3_scale')))
+            tf.Variable(
+                tf.random_normal([self.w3_shape[-1]]), name='qb3_scale')))
 
     self.qw4 = Normal(
         loc=tf.Variable(tf.random_normal(self.w4_shape), name='qw4_loc'),
-        scale=tf.nn.softplus(tf.Variable(tf.random_normal(self.w4_shape), name='qw4_scale')))
+        scale=tf.nn.softplus(tf.Variable(
+            tf.random_normal(self.w4_shape), name='qw4_scale')))
     self.qb4 = Normal(
         loc=tf.Variable(tf.random_normal([self.w4_shape[-1]]), name='qb4_loc'),
         scale=tf.nn.softplus(
-            tf.Variable(tf.random_normal([self.w4_shape[-1]]), name='qb4_scale')))
+            tf.Variable(
+                tf.random_normal([self.w4_shape[-1]]), name='qb4_scale')))
 
     self.inference = ed.KLqp({
         self.w1: self.qw1, self.b1: self.qb1,
         self.w2: self.qw2, self.b2: self.qb2,
         self.w3: self.qw3, self.b3: self.qb3,
-        # self.w4: self.qw4, self.b4: self.qb4,
+        self.w4: self.qw4, self.b4: self.qb4,
       }, data={self.categorical: self.Y_placeholder})
 
     self.inference.initialize(n_iter=self.iterations, 
@@ -109,11 +229,6 @@ class MnistMLP(object):
           self.Y_placeholder: Y_batch
         })
       self.inference.print_progress(info_dict)
-      # variables_names =['qw1_loc:0', 'qw1_scale:0']
-      # sess = ed.get_session()
-      # qw1_loc, qw1_scale = sess.run(variables_names)
-      # qw1_scale = np.log(np.exp(qw1_scale) + 1)
-      # print(np.amax(qw1_loc / qw1_scale))
 
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images
@@ -245,9 +360,8 @@ class MnistCNN(object):
         self.fc_w2: self.qfc_w2, self.fc_b2: self.qfc_b2,
       }, data={self.categorical: self.Y_placeholder})
 
-    self.inference.initialize(n_iter=self.iterations)
-    # self.inference.initialize(n_iter=self.iterations, 
-    #     scale={self.categorical: mnist.train.num_examples / self.batch_size})
+    self.inference.initialize(n_iter=self.iterations, 
+        scale={self.categorical: mnist.train.num_examples / self.batch_size})
 
   def optimize(self, mnist):
     for _ in range(self.inference.n_iter):
@@ -283,63 +397,6 @@ class MnistCNN(object):
     sfc_b2 = self.qfc_b2.sample()
     return tf.nn.softmax(BCNN(sf1, sb1, sf2, sb2, sfc_w1, sfc_b1,
         sfc_w2, sfc_b2, X))
-
-
-class MnistPlain(object):
-  def __init__(self, mnist, input_dim=784, output_dim=10, iterations=250, 
-      batch_size=100):
-    self.global_step = tf.Variable(
-        initial_value=0, name='global_step', trainable=False)
-
-    self.input_dim = input_dim
-    self.output_dim = output_dim
-    self.iterations = iterations
-    self.batch_size = batch_size
-
-    self.X_placeholder = tf.placeholder(tf.float32, (None, self.input_dim))
-    self.Y_placeholder = tf.placeholder(tf.int32, (None,))
-
-    w_shape = (input_dim, output_dim)
-    w = tf.get_variable('w', w_shape, dtype=tf.float32, 
-        initializer=tf.contrib.layers.xavier_initializer())
-    b = tf.get_variable('b', [w_shape[-1]], dtype=tf.float32,
-        initializer=tf.constant_initializer(0.))
-    self.nn = tf.matmul(self.X_placeholder, w) + b
-
-    self.pred = tf.nn.softmax(self.nn)
-
-    self.loss = tf.reduce_mean(
-        tf.nn.sparse_softmax_cross_entropy_with_logits(
-            logits=self.nn, labels=self.Y_placeholder))
-
-    self.train = tf.train.AdamOptimizer(
-        learning_rate=1e-3).minimize(self.loss, global_step=self.global_step)
-
-  def optimize(self, sess, mnist):
-    X_batches = []
-    Y_batches = []
-    for i in range(3):
-      X, Y = mnist.train.next_batch(50)
-      X_batches.append(X)
-      Y_batches.append(Y)
-    for i in range(self.iterations):
-      # X_batch, Y_batch = mnist.train.next_batch(self.batch_size)
-      X_batch = X_batches[i % 3]
-      Y_batch = Y_batches[i % 3]
-      sess.run(self.train, feed_dict={
-          self.X_placeholder: X_batch,
-          self.Y_placeholder: Y_batch
-        })
-
-  def validate(self, sess, mnist):
-    X_test = mnist.test.images[:1000]
-    Y_test = mnist.test.labels[:1000]
-    pred = sess.run(self.pred, feed_dict={
-        self.X_placeholder: X_test,
-        self.Y_placeholder: Y_test
-      })
-    pred = np.argmax(pred, axis=1)
-    return (pred == Y_test).mean() * 100
 
 
 class MnistModel(object):
@@ -391,20 +448,12 @@ class MnistModel(object):
   def validate(self, mnist, n_samples):
     X_test = mnist.test.images[:1000]
     Y_test = mnist.test.labels[:1000]
-    #probs = []
     probs = np.zeros((1000, 10))
     for _ in tqdm(range(n_samples)):
       sw = self.qw.sample()
       sb = self.qb.sample()
       prob = tf.nn.softmax(tf.matmul(X_test, sw) + sb)
-      #probs.append(prob.eval())
       probs += prob.eval()
-    # accuracies = []
-    # for prob in probs:
-    #   pred = np.argmax(prob, axis=1)
-    #   acc = (pred == Y_test).mean() * 100
-    #   accuracies.append(acc)
-    
     pred = np.argmax(probs, axis=1)
     accuracies = (pred == Y_test).mean() * 100
     return accuracies
